@@ -2,6 +2,36 @@
 function downloadRecovery(){const blob=new Blob([corruptRaw],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`ledger-recovery-${new Date().toISOString().slice(0,10)}.txt`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function resetRecovery(){if(!confirm('Reset the unreadable local Ledger data? Download a backup first if you may need it.'))return;localStorage.removeItem(STORAGE_KEY);state=loadState();render()}
 
+/*
+  Chronicle is a re-entry surface, not the audit log.
+  Keep exhaustive mutation history in Work history, but only surface deliberate
+  context in the Chronicle. New logs carry an explicit source; legacy rows fall
+  back to a conservative system-prefix filter so old data does not need migration.
+*/
+const CHRONICLE_SYSTEM_PREFIX=/^(Captured|Project created|Project updated|Task updated|Started|Completed|Reopened|Moved to open|Blocked|Note updated|Note added|Journal updated|Journal entry|Deleted task|Imported project):/i;
+function isChronicleWorkLog(log){
+  if(log?.source==='manual')return true;
+  if(log?.source)return false;
+  return !CHRONICLE_SYSTEM_PREFIX.test(String(log?.summary||'').trim());
+}
+addLog=function(summary,itemId='',projectId='',source='system'){
+  const p=projectId||activeProject()?.id||'';
+  state.worklog.unshift({id:uid('w'),p,itemId,whenAt:now(),summary,source});
+};
+saveWorklog=function(event){
+  event.preventDefault();const summary=$('worklogSummary').value.trim();const p=activeProject();if(!summary||!p)return;
+  const before=snapshot();touchProject(p);addLog(summary,'',p.id,'manual');closeDialog(event.target);persist('Work logged',before);
+};
+materialEvents=function(p,data){
+  const events=[];
+  data.logs.filter(isChronicleWorkLog).forEach(log=>events.push({key:`w-${log.id}`,when:log.whenAt||'',type:'WORK',tone:'work',title:log.summary||'Work recorded',body:'',action:log.itemId?{label:'Task details',id:log.itemId}:null}));
+  data.journal.forEach(j=>events.push({key:`j-${j.id}`,when:j.updatedAt||j.createdAt||'',type:'JOURNAL',tone:'journal',title:j.body||'Journal entry',body:'',action:{label:'Edit entry',kind:'edit-journal',id:j.id}}));
+  data.notes.forEach(n=>events.push({key:`n-${n.id}`,when:n.workedAt||n.createdAt||'',type:'NOTE',tone:'note',title:n.title||'Project note',body:'',action:{label:'Edit note',kind:'edit-note',id:n.id}}));
+  data.done.forEach(t=>events.push({key:`d-${t.id}`,when:t.completedAt||t.workedAt||'',type:'PROOF',tone:'proof',title:`Completed: ${t.title||'Untitled task'}`,body:t.verification||t.acceptance||'',action:{label:'Task details',kind:'task-details',id:t.id}}));
+  const seen=new Set();
+  return events.sort((a,b)=>String(b.when||'').localeCompare(String(a.when||''))).filter(e=>{const sig=`${e.when}|${e.title}`;if(seen.has(sig))return false;seen.add(sig);return true});
+};
+
 document.addEventListener('click',event=>{
   const project=event.target.closest('[data-project]');if(project){state.activeProject=project.dataset.project;localStorage.setItem(STORAGE_KEY,JSON.stringify(state));document.querySelectorAll('dialog[open]').forEach(d=>d.close());render();return}
   const kind=event.target.closest('[data-capture-kind]');if(kind){selectCaptureKind(kind.dataset.captureKind);return}
