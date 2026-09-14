@@ -1,9 +1,22 @@
-/* AIDB council accessibility pass for the clean-sheet palette. */
+/* AIDB council accessibility + compatibility pass for the clean-sheet palette. */
 :root{
   --muted:#6b655e;
   --rule-strong:#6f675e;
   --annotation-text:#8b5b0c;
   --proof-text:#4d6537;
+
+  /* Existing specialist task modules keep their behavior, but inherit the new
+     visual language through compatibility aliases rather than the retired core CSS. */
+  --ink-soft:var(--muted);
+  --rule-dark:var(--rule-strong);
+  --verm:var(--work);
+  --verm-dark:var(--work-strong);
+  --blue:var(--index-2);
+  --paper-deep:var(--paper-2);
+  --radius-small:2px;
+  --radius-control:2px;
+  --radius-panel:7px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 
 html[data-theme="dark"]{
