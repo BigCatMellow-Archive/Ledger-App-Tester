@@ -1,0 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --display:'Inter',Arial,Helvetica,sans-serif;
+  --sans:'Inter',Arial,Helvetica,sans-serif;
+}
+
+.project-intro h1{
+  line-height:.92;
+  letter-spacing:-.055em;
+  font-weight:700;
+}
+
+.brand strong,
+.checkpoint-card h2,
+.chronicle-heading h2,
+.next-head h2,
+.dialog-header h2,
+.empty-state h1,
+.system-state h1{
+  letter-spacing:-.035em;
+}
+
+.checkpoint-card h2,
+.chronicle-heading h2,
+.next-head h2,
+.dialog-header h2{
+  font-weight:700;
+}
+
+.brief-content p,
+.queue-empty{
+  font-family:var(--sans);
+}
