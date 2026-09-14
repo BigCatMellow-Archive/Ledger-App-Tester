@@ -40,6 +40,7 @@
     disableLegacyPageStyles();
     appendLink('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap','data-ledger-clean-fonts');
     appendLink('./ledger-ui.css?v=20260914-1','data-ledger-clean-ui');
+    appendLink('./ledger-ui-a11y.css?v=20260914-1','data-ledger-clean-a11y');
     document.body?.classList.add('clean-sheet-ui');
   }
 
