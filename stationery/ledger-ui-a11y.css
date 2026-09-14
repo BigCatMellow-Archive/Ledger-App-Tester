@@ -1,0 +1,21 @@
+/* AIDB council accessibility pass for the clean-sheet palette. */
+:root{
+  --muted:#6b655e;
+  --rule-strong:#6f675e;
+  --annotation-text:#8b5b0c;
+  --proof-text:#4d6537;
+}
+
+html[data-theme="dark"]{
+  --muted:#a59b90;
+  --rule-strong:#87929a;
+  --annotation-text:var(--annotation);
+  --proof-text:var(--proof);
+}
+
+#notesSection>.section-rule>span:first-child{color:var(--annotation-text)}
+.done-section summary{color:var(--proof-text)}
+.stamp.done{color:var(--proof-text)}
+
+/* Expressive role colors remain available as marks/backgrounds; small text uses
+   contrast-safe role variants so state is not weakened for visual subtlety. */
