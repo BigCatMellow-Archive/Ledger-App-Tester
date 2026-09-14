@@ -5,40 +5,59 @@
   const STORAGE_KEY = 'ledger-notes-roadmaps-v2';
   const root = document.documentElement;
   const metaTheme = document.querySelector('meta[name="theme-color"]');
-  let refreshQueued = false;
+  let queued = false;
 
-  function appendStylesheet(href, dataAttribute){
-    const selector = `link[${dataAttribute}]`;
-    if(document.querySelector(selector)) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    link.setAttribute(dataAttribute, 'true');
+  const DISABLED_CORE_STYLES = new Set([
+    'stationery.css',
+    'clean-paper.css',
+    'theme.css',
+    'typography.css',
+    'project-links.css',
+    'sync-status.css'
+  ]);
+
+  function fileName(href){
+    try{return new URL(href,location.href).pathname.split('/').pop().split('?')[0]}
+    catch(e){return ''}
+  }
+
+  function disableLegacyPageStyles(){
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(link=>{
+      if(DISABLED_CORE_STYLES.has(fileName(link.href))) link.disabled=true;
+    });
+  }
+
+  function appendLink(href, marker){
+    if(document.querySelector(`link[${marker}]`))return;
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href=href;
+    link.setAttribute(marker,'true');
     document.head.appendChild(link);
   }
 
-  function loadDesignLayers(){
-    /* Structural AIDB grammar first, semantic color grammar second. */
-    appendStylesheet('./visual-refresh.css?v=20260914-2', 'data-ledger-visual-refresh');
-    appendStylesheet('./color-system.css?v=20260914-1', 'data-ledger-color-system');
+  function loadCleanSheetSystem(){
+    disableLegacyPageStyles();
+    appendLink('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap','data-ledger-clean-fonts');
+    appendLink('./ledger-ui.css?v=20260914-1','data-ledger-clean-ui');
+    appendLink('./ledger-ui-a11y.css?v=20260914-1','data-ledger-clean-a11y');
+    document.body?.classList.add('clean-sheet-ui');
   }
 
   function savedTheme(){
-    const value = localStorage.getItem(THEME_KEY);
-    return value === 'dark' ? 'dark' : 'light';
+    return localStorage.getItem(THEME_KEY)==='dark'?'dark':'light';
   }
 
   function applyTheme(theme){
-    const next = theme === 'dark' ? 'dark' : 'light';
-    root.dataset.theme = next;
-    localStorage.setItem(THEME_KEY, next);
-    if (metaTheme) metaTheme.setAttribute('content', next === 'dark' ? '#191613' : '#f3ebdd');
-
-    const button = document.getElementById('themeToggle');
-    if (button){
-      button.setAttribute('aria-pressed', String(next === 'dark'));
-      button.setAttribute('aria-label', next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-      button.title = next === 'dark' ? 'Light mode' : 'Dark mode';
+    const next=theme==='dark'?'dark':'light';
+    root.dataset.theme=next;
+    localStorage.setItem(THEME_KEY,next);
+    if(metaTheme)metaTheme.setAttribute('content',next==='dark'?'#171c20':'#f5f0e6');
+    const button=document.getElementById('themeToggle');
+    if(button){
+      button.setAttribute('aria-pressed',String(next==='dark'));
+      button.setAttribute('aria-label',next==='dark'?'Switch to light mode':'Switch to dark mode');
+      button.title=next==='dark'?'Light mode':'Dark mode';
     }
   }
 
@@ -47,81 +66,41 @@
     catch(e){return null}
   }
 
-  function setText(id,value){
-    const node=document.getElementById(id);
+  function setText(node,value){
     if(node&&node.textContent!==value)node.textContent=value;
   }
 
-  function wrapRegister(rule, list, className){
-    if(!rule||!list||rule.parentElement?.classList.contains('ledger-register'))return;
-    const section=document.createElement('section');
-    section.className=`ledger-register ${className}`;
-    rule.parentNode.insertBefore(section,rule);
-    section.append(rule,list);
-  }
+  function ensureProjectChrome(){
+    const heading=document.querySelector('#projectView .project-heading');
+    if(!heading)return;
 
-  function projectHeadingMain(heading){
-    const known=heading.querySelector(':scope > .ledger-project-heading-main');
-    if(known)return known;
-    const candidate=[...heading.children].find(node=>
-      node.tagName==='DIV'&&!node.classList.contains('ledger-folio-block')&&!node.classList.contains('ledger-project-actions')
-    );
-    if(candidate)candidate.classList.add('ledger-project-heading-main');
-    return candidate||null;
-  }
+    const main=heading.querySelector(':scope > div:first-child');
+    const menu=heading.querySelector(':scope > .quiet-button, .project-heading-actions > .quiet-button');
 
-  function enhanceStructure(){
-    const view=document.getElementById('projectView');
-    const heading=view?.querySelector('.project-heading');
-    if(!view||!heading)return;
-
-    const main=projectHeadingMain(heading);
-
-    if(!heading.querySelector('.ledger-folio-block')){
-      const folio=document.createElement('div');
-      folio.className='ledger-folio-block';
-      folio.innerHTML='<span class="ledger-folio-label">FOLIO</span><strong id="ledgerFolioNumber">01</strong><span id="ledgerFolioTotal">/01</span>';
-      heading.prepend(folio);
-    }
-
-    if(!heading.querySelector('.ledger-project-actions')){
-      const actions=document.createElement('div');
-      actions.className='ledger-project-actions';
-      actions.innerHTML=`
-        <button type="button" class="ledger-action ledger-action-primary" data-action="capture">＋ Capture</button>
-        <button type="button" class="ledger-action" data-action="log-work">Log work</button>
-        <button type="button" class="ledger-action" data-action="edit-current-project">Edit project</button>`;
-      const menu=heading.querySelector('.quiet-button');
-      if(menu)heading.insertBefore(actions,menu); else heading.appendChild(actions);
-    }
-
-    if(main&&!main.querySelector('.ledger-project-meta')){
+    if(main&&!main.querySelector('.project-meta-line')){
       const meta=document.createElement('div');
-      meta.className='ledger-project-meta';
-      meta.innerHTML='<span id="ledgerRegisterMode">REGISTER</span><span id="ledgerUpdatedAt">LOCAL RECORD</span>';
+      meta.className='project-meta-line';
+      meta.innerHTML='<span id="cleanProjectPosition">PROJECT 01 / 01</span><span id="cleanProjectUpdated">LOCAL RECORD</span>';
       const kicker=main.querySelector('.project-kicker');
       if(kicker)kicker.insertAdjacentElement('afterend',meta); else main.prepend(meta);
     }
 
-    if(!document.querySelector('.ledger-register-now')){
-      const active=document.getElementById('activeItems');
-      const rule=active?.previousElementSibling?.classList.contains('section-rule')?active.previousElementSibling:null;
-      wrapRegister(rule,active,'ledger-register-now');
-    }
-    if(!document.querySelector('.ledger-register-open')){
-      const open=document.getElementById('openItems');
-      const rule=open?.previousElementSibling?.classList.contains('section-rule')?open.previousElementSibling:null;
-      wrapRegister(rule,open,'ledger-register-open');
-    }
-
-    const masthead=document.querySelector('.masthead > div:first-child');
-    if(masthead&&!masthead.querySelector('.ledger-registry-line')){
-      const line=document.createElement('div');
-      line.className='ledger-registry-line';
-      line.textContent='WORKING REGISTER / PROJECT RECORD / LOCAL-FIRST';
-      masthead.appendChild(line);
+    if(!heading.querySelector('.project-heading-actions')){
+      const wrap=document.createElement('div');
+      wrap.className='project-heading-actions';
+      const actions=document.createElement('div');
+      actions.className='project-quick-actions';
+      actions.innerHTML=`
+        <button type="button" class="primary-action" data-action="capture">＋ Capture</button>
+        <button type="button" data-action="log-work">Log work</button>
+        <button type="button" data-action="edit-current-project">Edit</button>`;
+      wrap.appendChild(actions);
+      if(menu)wrap.appendChild(menu);
+      heading.appendChild(wrap);
     }
 
+    const eyebrow=document.querySelector('.eyebrow');
+    setText(eyebrow,'PROJECT OPERATIONS / LOCAL-FIRST');
     syncProjectMeta();
   }
 
@@ -129,48 +108,45 @@
     const state=readState();
     const projects=Array.isArray(state?.projects)?state.projects:[];
     const activeId=state?.activeProject;
-    const foundIndex=projects.findIndex(project=>project?.id===activeId);
-    const index=foundIndex>=0?foundIndex:0;
+    let index=projects.findIndex(project=>project?.id===activeId);
+    if(index<0)index=0;
     const project=projects[index]||null;
-    setText('ledgerFolioNumber',String(index+1).padStart(2,'0'));
-    setText('ledgerFolioTotal',`/${String(Math.max(projects.length,1)).padStart(2,'0')}`);
-    setText('ledgerRegisterMode',project?.mode==='ROADMAP'?'ROADMAP REGISTER':'WORK REGISTER');
+    const position=document.getElementById('cleanProjectPosition');
+    const updated=document.getElementById('cleanProjectUpdated');
+    setText(position,`PROJECT ${String(index+1).padStart(2,'0')} / ${String(Math.max(projects.length,1)).padStart(2,'0')}`);
     const date=project?.workedAt?new Date(project.workedAt):null;
-    const updated=date&&!Number.isNaN(date.getTime())?`UPDATED ${date.toLocaleDateString(undefined,{month:'short',day:'2-digit'}).toUpperCase()}`:'LOCAL RECORD';
-    setText('ledgerUpdatedAt',updated);
+    const label=date&&!Number.isNaN(date.getTime())
+      ? `UPDATED ${date.toLocaleDateString(undefined,{month:'short',day:'2-digit'}).toUpperCase()}`
+      : 'LOCAL RECORD';
+    setText(updated,label);
   }
 
-  function queueEnhance(){
-    if(refreshQueued)return;
-    refreshQueued=true;
+  function queueSync(){
+    if(queued)return;
+    queued=true;
     requestAnimationFrame(()=>{
-      refreshQueued=false;
-      enhanceStructure();
+      queued=false;
+      ensureProjectChrome();
       syncProjectMeta();
     });
   }
 
-  loadDesignLayers();
+  loadCleanSheetSystem();
   applyTheme(savedTheme());
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded',()=>{
+    loadCleanSheetSystem();
     applyTheme(savedTheme());
-    enhanceStructure();
+    ensureProjectChrome();
 
-    const button = document.getElementById('themeToggle');
-    if (button){
-      button.addEventListener('click', () => {
-        applyTheme(root.dataset.theme === 'dark' ? 'light' : 'dark');
-      });
-    }
+    const button=document.getElementById('themeToggle');
+    if(button)button.addEventListener('click',()=>applyTheme(root.dataset.theme==='dark'?'light':'dark'));
 
     const app=document.getElementById('app');
-    if(app){
-      new MutationObserver(queueEnhance).observe(app,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['hidden','class']});
-    }
+    if(app)new MutationObserver(queueSync).observe(app,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['hidden','class']});
     const tabs=document.getElementById('projectTabs');
-    if(tabs)new MutationObserver(queueEnhance).observe(tabs,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
+    if(tabs)new MutationObserver(queueSync).observe(tabs,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});
   });
 
-  window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY)queueEnhance();});
+  window.addEventListener('storage',event=>{if(event.key===STORAGE_KEY)queueSync();});
 })();
