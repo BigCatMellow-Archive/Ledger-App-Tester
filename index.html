@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="stationery/v3.css?v=1">
+  <link rel="stylesheet" href="stationery/v3.css?v=2">
   <script>
     try{document.documentElement.dataset.theme=localStorage.getItem('ledger-stationery-theme-v1')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}
   </script>
@@ -107,12 +107,16 @@
               </section>
 
               <details id="archiveSection" class="archive-section">
-                <summary><span><span class="section-index">03</span> Archive</span><span id="doneCount"></span></summary>
+                <summary><span><span class="section-index">04</span> Archive</span><span id="doneCount"></span></summary>
                 <div id="doneTasks" class="task-list done-task-list"></div>
               </details>
             </section>
 
             <aside class="context-margin" aria-label="Project context">
+              <div class="context-stream-label">
+                <span class="section-index">03</span>
+                <div><strong>Context</strong><small>What you need to remember</small></div>
+              </div>
               <section id="briefSection" class="context-section brief-section">
                 <div class="context-heading"><span>PROJECT BRIEF</span><button type="button" data-action="edit-project">Edit</button></div>
                 <div id="briefContent"></div>
@@ -129,6 +133,7 @@
                 <button id="journalMore" class="context-more" type="button" data-action="history" hidden>See full history</button>
               </section>
             </aside>
+
           </div>
         </article>
       </main>
