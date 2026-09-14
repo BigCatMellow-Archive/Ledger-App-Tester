@@ -3,321 +3,272 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f4f4f1">
+  <meta name="theme-color" content="#efe7d8">
   <meta name="color-scheme" content="light dark">
   <title>Ledger</title>
-  <base href="./stationery/">
-  <script>
-    try{
-      document.documentElement.dataset.theme = localStorage.getItem('ledger-stationery-theme-v1') === 'dark' ? 'dark' : 'light';
-      if(document.documentElement.dataset.theme === 'dark'){
-        document.querySelector('meta[name="theme-color"]').setAttribute('content','#181715');
-      }
-    }catch(e){document.documentElement.dataset.theme='light'}
-  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./stationery.css?v=2">
-  <link rel="stylesheet" href="./clean-paper.css?v=2">
-  <link rel="stylesheet" href="./theme.css?v=4">
-  <link rel="stylesheet" href="./journal.css?v=2">
-  <link rel="stylesheet" href="./roadmap-help.css?v=1">
-  <link rel="stylesheet" href="./typography.css?v=1">
-  <link rel="stylesheet" href="./project-links.css?v=1">
-  <link rel="stylesheet" href="./task-details.css?v=6">
-  <link rel="stylesheet" href="./task-links.css?v=4">
-  <link rel="stylesheet" href="./task-interactions.css?v=2">
-  <link rel="stylesheet" href="./task-workspace.css?v=1">
-  <link rel="stylesheet" href="./mobile-task-ui.css?v=1">
-  <link rel="stylesheet" href="./sync-status.css?v=1">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="stationery/v3.css?v=1">
+  <script>
+    try{document.documentElement.dataset.theme=localStorage.getItem('ledger-stationery-theme-v1')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}
+  </script>
 </head>
 <body>
-  <div class="desk">
-    <header class="masthead">
-      <div>
-        <div class="eyebrow">NOTES · ROADMAPS · JOURNAL · WORK LOG</div>
-        <h1>Ledger</h1>
-      </div>
-      <div class="masthead-actions">
-        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false" title="Dark mode">
-          <span class="theme-moon" aria-hidden="true">☾</span>
-          <span class="theme-sun" aria-hidden="true">☀</span>
-        </button>
-        <div class="date-block" aria-label="Today's date">
-          <span id="todayDay">21</span>
-          <span id="todayMonth">AUG</span>
+  <div class="app-shell">
+    <aside class="project-spine" aria-label="Project index">
+      <header class="brand-block">
+        <button class="brand-mark" type="button" data-action="home" aria-label="Ledger home">L</button>
+        <div>
+          <p class="brand-kicker">CONTINUITY REGISTER</p>
+          <div class="brand-name">Ledger</div>
         </div>
+      </header>
+
+      <div class="spine-section-head">
+        <span>PROJECTS</span>
+        <button class="text-action" type="button" data-action="new-project">New</button>
       </div>
-    </header>
+      <nav id="projectIndex" class="project-index" aria-label="Projects"></nav>
 
-    <div class="project-strip-wrap">
-      <div class="strip-label">PROJECT INDEX</div>
-      <div id="projectTabs" class="project-tabs" aria-label="Projects"></div>
-      <button id="newProjectTop" class="index-add" type="button" aria-label="New project">＋</button>
-    </div>
-
-    <aside id="syncNudge" class="sync-nudge" hidden aria-live="polite">
-      <span id="syncNudgeText"></span>
-      <span class="sync-nudge-actions">
-        <a href="../sync.html">Open Sync</a>
-        <a href="https://github.com/BigCatMellow/Ledger-App/blob/main/docs/wiki/Set-Up-Your-Notes-Repository.md" target="_blank" rel="noopener noreferrer">How to Sync</a>
-      </span>
+      <footer class="spine-footer">
+        <div id="syncStatus" class="sync-status"></div>
+        <div class="spine-actions">
+          <button type="button" data-action="history">History</button>
+          <button type="button" data-action="tools">Tools</button>
+          <button id="themeToggle" type="button" data-action="theme" aria-label="Switch theme">Theme</button>
+        </div>
+      </footer>
     </aside>
 
-    <main id="app" class="paper" aria-live="polite">
-      <section id="emptyState" class="empty-state" hidden>
-        <div class="empty-number">00</div>
-        <h2>No notebook yet</h2>
-        <p>Create a project to begin writing.</p>
-        <button class="paper-button primary" data-action="new-project" type="button">Create project</button>
-      </section>
+    <section class="main-stage">
+      <header class="mobile-header">
+        <button class="mobile-brand" type="button" data-action="projects"><span>L</span><strong>Ledger</strong></button>
+        <button id="mobileProjectName" class="mobile-project-name" type="button" data-action="projects">Projects</button>
+        <button class="mobile-icon-button" type="button" data-action="tools" aria-label="Tools">•••</button>
+      </header>
 
-      <section id="projectView" hidden>
-        <div class="project-heading">
-          <div>
-            <div id="projectMode" class="project-kicker">LIST</div>
-            <h2 id="projectTitle"></h2>
-            <p id="projectDescription" class="project-description"></p>
-            <div id="projectLinks" class="project-links" aria-label="Project links" hidden></div>
+      <main id="mainContent" class="main-content">
+        <section id="corruptState" class="system-state" hidden></section>
+        <section id="emptyState" class="empty-state" hidden>
+          <p class="micro-label">NEW REGISTER</p>
+          <h1>Start with one project.</h1>
+          <p>Ledger is built to help you return to work without rebuilding the context in your head.</p>
+          <button class="primary-button" type="button" data-action="new-project">Create project</button>
+        </section>
+
+        <article id="projectSurface" class="project-surface" hidden>
+          <header class="project-header">
+            <div class="project-heading-copy">
+              <div class="project-line">
+                <span id="projectPosition">PROJECT 01 / 01</span>
+                <span id="projectMode">WORK REGISTER</span>
+                <span id="projectUpdated">UPDATED TODAY</span>
+              </div>
+              <h1 id="projectTitle"></h1>
+              <p id="projectDescription" class="project-description"></p>
+              <div id="projectLinks" class="project-links"></div>
+            </div>
+            <div class="project-header-actions">
+              <button class="primary-button" type="button" data-action="capture">Capture</button>
+              <button type="button" data-action="log-work">Log work</button>
+              <button type="button" data-action="edit-project">Edit</button>
+            </div>
+          </header>
+
+          <section id="returnPoint" class="return-point" aria-labelledby="returnPointLabel">
+            <div class="return-label-block">
+              <span id="returnPointLabel" class="micro-label">RETURN POINT</span>
+              <strong id="returnTime">Today</strong>
+            </div>
+            <div class="return-summary">
+              <p id="returnChange" class="return-change"></p>
+              <p id="returnPrompt" class="return-prompt"></p>
+            </div>
+            <div id="returnAction" class="return-action"></div>
+          </section>
+
+          <div class="project-layout">
+            <section class="work-stream" aria-label="Current work">
+              <section class="work-section now-section">
+                <div class="section-heading">
+                  <div><span class="section-index">01</span><h2>Now</h2></div>
+                  <span id="activeCount" class="section-count"></span>
+                </div>
+                <div id="activeTasks" class="task-list active-task-list"></div>
+              </section>
+
+              <section class="work-section queue-section">
+                <div class="section-heading">
+                  <div><span class="section-index">02</span><h2>Next</h2></div>
+                  <div class="section-actions"><span id="openCount" class="section-count"></span><button type="button" data-action="quick-task">+ Task</button></div>
+                </div>
+                <div id="openTasks" class="task-list queue-task-list"></div>
+              </section>
+
+              <details id="archiveSection" class="archive-section">
+                <summary><span><span class="section-index">03</span> Archive</span><span id="doneCount"></span></summary>
+                <div id="doneTasks" class="task-list done-task-list"></div>
+              </details>
+            </section>
+
+            <aside class="context-margin" aria-label="Project context">
+              <section id="briefSection" class="context-section brief-section">
+                <div class="context-heading"><span>PROJECT BRIEF</span><button type="button" data-action="edit-project">Edit</button></div>
+                <div id="briefContent"></div>
+              </section>
+
+              <section class="context-section notes-section">
+                <div class="context-heading"><span>NOTES</span><button type="button" data-action="new-note">+ Note</button></div>
+                <div id="notesList" class="notes-list"></div>
+              </section>
+
+              <section class="context-section journal-section">
+                <div class="context-heading"><span>JOURNAL</span><button type="button" data-action="new-journal">+ Entry</button></div>
+                <div id="journalList" class="journal-list"></div>
+                <button id="journalMore" class="context-more" type="button" data-action="history" hidden>See full history</button>
+              </section>
+            </aside>
           </div>
-          <button class="quiet-button" data-action="project-menu" type="button" aria-label="Project options">•••</button>
-        </div>
-
-        <section id="roadmapSummary" class="roadmap-summary" hidden></section>
-
-        <div class="section-rule">
-          <span>NOW</span>
-          <span id="projectProgress" class="section-note"></span>
-        </div>
-        <div id="activeItems" class="entry-list"></div>
-
-        <div class="section-rule">
-          <span>NEXT / OPEN</span>
-          <span id="openCount" class="section-note"></span>
-        </div>
-        <div id="openItems" class="entry-list"></div>
-
-        <div id="notesSection">
-          <div class="section-rule">
-            <span>NOTES</span>
-            <span id="noteCount" class="section-note"></span>
-          </div>
-          <div id="noteItems" class="memo-list"></div>
-        </div>
-
-        <div id="journalSection" class="journal-section">
-          <div class="section-rule journal-rule">
-            <span>Journal</span>
-            <span class="journal-rule-actions">
-              <span id="journalCount" class="section-note">0</span>
-              <button class="journal-add" data-journal-new type="button">＋ Thought</button>
-            </span>
-          </div>
-          <div id="journalItems" class="journal-list"></div>
-        </div>
-
-        <details id="doneSection" class="done-section">
-          <summary><span>ARCHIVE / DONE</span><span id="doneCount"></span></summary>
-          <div id="doneItems" class="entry-list done-list"></div>
-        </details>
-      </section>
-    </main>
+        </article>
+      </main>
+    </section>
   </div>
 
-  <nav class="bottom-ruler" aria-label="Ledger navigation">
-    <button data-action="projects" type="button"><span class="nav-mark">▥</span><span>Projects</span></button>
-    <button class="capture-nav" data-action="capture" type="button"><span class="nav-mark">＋</span><span>Capture</span></button>
-    <button data-action="history" type="button"><span class="nav-mark">◷</span><span>History</span></button>
-    <button data-action="tools" type="button"><span class="nav-mark">⌁</span><span>Tools</span></button>
+  <nav class="mobile-dock" aria-label="Primary actions">
+    <button type="button" data-action="projects"><span class="dock-icon">▥</span><span>Projects</span></button>
+    <button class="dock-primary" type="button" data-action="capture"><span class="dock-icon">＋</span><span>Capture</span></button>
+    <button type="button" data-action="new-journal"><span class="dock-icon">✎</span><span>Journal</span></button>
+    <button type="button" data-action="history"><span class="dock-icon">◷</span><span>History</span></button>
   </nav>
 
-  <div id="sheetBackdrop" class="sheet-backdrop" hidden></div>
+  <dialog id="projectsDialog" class="ledger-dialog compact-dialog">
+    <form method="dialog" class="dialog-chrome"><button class="dialog-close" value="cancel" aria-label="Close">×</button></form>
+    <header class="dialog-header"><span class="micro-label">PROJECT INDEX</span><h2>Projects</h2></header>
+    <div id="projectsDialogList" class="dialog-project-list"></div>
+    <button class="primary-button full-button" type="button" data-action="new-project">New project</button>
+  </dialog>
 
-  <section id="projectsSheet" class="sheet" hidden aria-modal="true" role="dialog" aria-labelledby="projectsSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">INDEX</div><h2 id="projectsSheetTitle">Projects</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
-    <div id="projectList" class="project-list"></div>
-    <button class="paper-button primary full" data-action="new-project" type="button">＋ New project</button>
-  </section>
-
-  <section id="captureSheet" class="sheet capture-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="captureSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">ADD TO PROJECT</div><h2 id="captureSheetTitle">Capture</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
+  <dialog id="captureDialog" class="ledger-dialog">
     <form id="captureForm">
-      <div class="segmented" role="group" aria-label="Capture type">
-        <button type="button" data-kind="NOTE" class="selected">Note</button>
-        <button type="button" data-kind="CHECKLIST">Task</button>
-        <button type="button" data-kind="EXECUTION">Detailed task</button>
+      <button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close">×</button>
+      <header class="dialog-header"><span class="micro-label">CAPTURE</span><h2>Add to project</h2></header>
+      <div class="capture-kind" role="group" aria-label="Capture type">
+        <button type="button" data-capture-kind="NOTE">Note</button>
+        <button type="button" data-capture-kind="CHECKLIST" class="selected">Task</button>
+        <button type="button" data-capture-kind="EXECUTION">Detailed task</button>
       </div>
-      <label class="field ruled-field"><span>Title / note</span><textarea id="captureTitle" rows="4" required placeholder="Write it down…"></textarea></label>
-      <div id="captureTaskFields" hidden>
-        <label class="field"><span>Section / phase</span><input id="capturePhase" type="text" placeholder="Optional"></label>
-      </div>
-      <div id="captureExecutionFields" hidden>
+      <label class="field"><span>Title / note</span><textarea id="captureTitle" rows="4" required></textarea></label>
+      <label id="capturePhaseField" class="field"><span>Section / phase</span><input id="capturePhase" type="text"></label>
+      <div id="captureDetailFields" class="field-stack" hidden>
         <label class="field"><span>Outcome</span><textarea id="captureOutcome" rows="2"></textarea></label>
         <label class="field"><span>Input / source</span><textarea id="captureInputs" rows="2"></textarea></label>
         <label class="field"><span>Waiting on / dependencies</span><textarea id="captureDependencies" rows="2"></textarea></label>
         <label class="field"><span>Done when</span><textarea id="captureAcceptance" rows="2"></textarea></label>
       </div>
-      <button class="paper-button primary full" type="submit">Save to Ledger →</button>
+      <button class="primary-button full-button" type="submit">Save to Ledger</button>
     </form>
-  </section>
+  </dialog>
 
-  <section id="journalSheet" class="sheet journal-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="journalSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">PROJECT JOURNAL</div><h2 id="journalSheetTitle">New Thought</h2></div><button class="sheet-close" data-close-journal type="button">×</button></div>
-    <form id="journalForm">
-      <input id="journalId" type="hidden">
-      <label class="field"><span>Thought</span><textarea id="journalBody" rows="8" required placeholder="Idea, question, observation, decision…"></textarea></label>
-      <div class="journal-sheet-actions">
-        <button id="journalDelete" class="paper-button journal-delete" type="button" hidden>Delete Thought</button>
-        <button class="paper-button primary full" type="submit">Save Thought</button>
-      </div>
-    </form>
-  </section>
-
-  <section id="historySheet" class="sheet tall-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="historySheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">WORK LOG</div><h2 id="historySheetTitle">History</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
-    <div id="historyList" class="history-list"></div>
-  </section>
-
-  <section id="workLogSheet" class="sheet" hidden aria-modal="true" role="dialog" aria-labelledby="workLogSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">WORK LOG</div><h2 id="workLogSheetTitle">Log work</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
-    <form id="workLogForm">
-      <p id="workLogProject" class="project-description"></p>
-      <label class="field"><span>What changed?</span><textarea id="workLogSummary" rows="5" required placeholder="Short note about what you worked on…"></textarea></label>
-      <button class="paper-button primary full" type="submit">Add to History</button>
-    </form>
-  </section>
-
-  <section id="toolsSheet" class="sheet" hidden aria-modal="true" role="dialog" aria-labelledby="toolsSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">UTILITY</div><h2 id="toolsSheetTitle">Tools</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
-    <div class="tool-list">
-      <a class="tool-row" href="../sync.html"><span><strong>GitHub sync</strong><small>Connection, backup status, and manual sync</small></span><span>→</span></a>
-      <button class="tool-row" data-action="export-md" type="button"><span><strong>Export current project</strong><small>Download a Markdown copy</small></span><span>↓</span></button>
-      <button class="tool-row" data-action="import-md" type="button"><span><strong>Import Markdown</strong><small>Add a Markdown file as a new project</small></span><span>↑</span></button>
-    </div>
-    <input id="importFile" type="file" accept=".md,text/markdown,text/plain" hidden>
-  </section>
-
-  <section id="projectSheet" class="sheet tall-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="projectSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">PROJECT</div><h2 id="projectSheetTitle">Project</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
+  <dialog id="projectDialog" class="ledger-dialog wide-dialog">
     <form id="projectForm">
+      <button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close">×</button>
+      <header class="dialog-header"><span class="micro-label">PROJECT</span><h2 id="projectDialogTitle">Project</h2></header>
       <input id="projectId" type="hidden">
       <label class="field"><span>Project title</span><input id="projectTitleInput" type="text" required></label>
       <label class="field"><span>Description</span><textarea id="projectDescriptionInput" rows="3"></textarea></label>
-      <label class="field project-links-field">
-        <span>Project Links</span>
-        <textarea id="projectLinksInput" rows="3" placeholder="GitHub | https://github.com/owner/repository&#10;Live Site | https://example.com"></textarea>
-        <small class="field-help">One link per line. Labels are optional; use Label | URL when you want one.</small>
-      </label>
-      <div class="field"><span>Format</span><div class="segmented"><button id="modeList" type="button" data-mode="LIST">List</button><button id="modeRoadmap" type="button" data-mode="ROADMAP">Roadmap</button></div></div>
-      <div id="roadmapFields" class="roadmap-fields" hidden>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingCurrent">Current Reality</label><button class="roadmap-help-button" type="button" data-roadmap-help="current" aria-label="Explain Current Reality">?</button></div>
-          <textarea id="framingCurrent" rows="3"></textarea>
-        </div>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingDone">Definition of Done</label><button class="roadmap-help-button" type="button" data-roadmap-help="done" aria-label="Explain Definition of Done">?</button></div>
-          <textarea id="framingDone" rows="3"></textarea>
-        </div>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingProof">Final Proof</label><button class="roadmap-help-button" type="button" data-roadmap-help="proof" aria-label="Explain Final Proof">?</button></div>
-          <textarea id="framingProof" rows="2"></textarea>
-        </div>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingScope">In Scope</label><button class="roadmap-help-button" type="button" data-roadmap-help="scope" aria-label="Explain In Scope">?</button></div>
-          <textarea id="framingScope" rows="2"></textarea>
-        </div>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingNotDoing">Not Doing</label><button class="roadmap-help-button" type="button" data-roadmap-help="notDoing" aria-label="Explain Not Doing">?</button></div>
-          <textarea id="framingNotDoing" rows="2"></textarea>
-        </div>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingEffort">Effort Limit</label><button class="roadmap-help-button" type="button" data-roadmap-help="effort" aria-label="Explain Effort Limit">?</button></div>
-          <input id="framingEffort" type="text">
-        </div>
-        <div class="field roadmap-field">
-          <div class="roadmap-field-label"><label for="framingRisk">Highest-Risk Unknown</label><button class="roadmap-help-button" type="button" data-roadmap-help="risk" aria-label="Explain Highest-Risk Unknown">?</button></div>
-          <textarea id="framingRisk" rows="2"></textarea>
-        </div>
+      <label class="field"><span>Project links</span><textarea id="projectLinksInput" rows="3" placeholder="GitHub | https://github.com/owner/repo"></textarea><small>One per line. Optional format: Label | URL</small></label>
+      <fieldset class="field-group"><legend>Format</legend><div class="segmented"><label><input type="radio" name="projectMode" value="LIST" checked> List</label><label><input type="radio" name="projectMode" value="ROADMAP"> Roadmap</label></div></fieldset>
+      <div id="roadmapFields" class="field-stack">
+        <label class="field"><span>Current reality</span><textarea id="framingCurrent" rows="3"></textarea></label>
+        <label class="field"><span>Definition of done</span><textarea id="framingDone" rows="3"></textarea></label>
+        <label class="field"><span>Final proof</span><textarea id="framingProof" rows="2"></textarea></label>
+        <label class="field"><span>In scope</span><textarea id="framingScope" rows="2"></textarea></label>
+        <label class="field"><span>Not doing</span><textarea id="framingNotDoing" rows="2"></textarea></label>
+        <label class="field"><span>Effort limit</span><input id="framingEffort" type="text"></label>
+        <label class="field"><span>Highest-risk unknown</span><textarea id="framingRisk" rows="2"></textarea></label>
       </div>
-      <button class="paper-button primary full" type="submit">Save project</button>
+      <button class="primary-button full-button" type="submit">Save project</button>
     </form>
-  </section>
+  </dialog>
 
-  <section id="itemSheet" class="sheet tall-sheet" hidden aria-modal="true" role="dialog" aria-labelledby="itemSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div id="itemKindLabel" class="sheet-label">ENTRY</div><h2 id="itemSheetTitle">Entry</h2></div><button class="sheet-close" data-close-sheet type="button">×</button></div>
-    <form id="itemForm">
-      <input id="itemId" type="hidden">
-      <label class="field"><span>Title</span><textarea id="itemTitleInput" rows="3" required></textarea></label>
-      <label class="field"><span>Section / phase</span><input id="itemPhaseInput" type="text"></label>
-      <label class="field"><span>Notes</span><textarea id="itemNotesInput" rows="3"></textarea></label>
-      <div id="itemExecutionFields">
-        <label class="field"><span>Outcome</span><textarea id="itemOutcomeInput" rows="2"></textarea></label>
-        <label class="field"><span>Input / source</span><textarea id="itemInputsInput" rows="2"></textarea></label>
-        <label class="field"><span>Waiting on / dependencies</span><textarea id="itemDependenciesInput" rows="2"></textarea></label>
-        <label class="field"><span>Boundary</span><textarea id="itemBoundaryInput" rows="2"></textarea></label>
-        <label class="field"><span>Done when</span><textarea id="itemAcceptanceInput" rows="2"></textarea></label>
-        <label class="field"><span>Verification</span><textarea id="itemVerificationInput" rows="2"></textarea></label>
-        <label class="field"><span>Stop condition</span><textarea id="itemStopInput" rows="2"></textarea></label>
+  <dialog id="taskDialog" class="ledger-dialog wide-dialog task-dialog">
+    <form id="taskForm">
+      <button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close">×</button>
+      <header class="dialog-header"><span id="taskKindLabel" class="micro-label">TASK</span><h2>Task details</h2></header>
+      <input id="taskId" type="hidden">
+      <div class="task-editor-grid">
+        <label class="field span-2"><span>Title</span><textarea id="taskTitleInput" rows="2" required></textarea></label>
+        <label class="field"><span>Status</span><select id="taskStatusInput"><option>OPEN</option><option>ACTIVE</option><option>BLOCKED</option><option>DONE</option></select></label>
+        <label class="field"><span>Section / phase</span><input id="taskPhaseInput" type="text"></label>
+        <label class="field span-2"><span>Working note</span><textarea id="taskNotesInput" rows="3"></textarea></label>
+        <label class="field span-2"><span>Link</span><input id="taskLinkInput" type="url" inputmode="url"></label>
       </div>
-      <div class="status-actions" id="itemStatusActions"></div>
-      <button class="paper-button full" type="submit">Save changes</button>
+      <details class="editor-details" open><summary>Execution context</summary><div class="field-stack two-column-fields">
+        <label class="field"><span>Outcome</span><textarea id="taskOutcomeInput" rows="2"></textarea></label>
+        <label class="field"><span>Input / source</span><textarea id="taskInputsInput" rows="2"></textarea></label>
+        <label class="field"><span>Waiting on</span><textarea id="taskDependenciesInput" rows="2"></textarea></label>
+        <label class="field"><span>Boundary</span><textarea id="taskBoundaryInput" rows="2"></textarea></label>
+        <label class="field"><span>Done when</span><textarea id="taskAcceptanceInput" rows="2"></textarea></label>
+        <label class="field"><span>Verification</span><textarea id="taskVerificationInput" rows="2"></textarea></label>
+        <label class="field span-2"><span>Stop condition</span><textarea id="taskStopInput" rows="2"></textarea></label>
+      </div></details>
+      <section class="editor-section"><div class="editor-section-head"><span>CHECKLIST</span><button type="button" data-action="add-subtask">+ Step</button></div><div id="subtaskEditor" class="subtask-editor"></div></section>
+      <section class="editor-section"><div class="editor-section-head"><span>TASK NOTES</span></div><div id="taskNotationList" class="notation-list"></div><label class="field"><span>Add timestamped note</span><textarea id="taskNewNotation" rows="2"></textarea></label></section>
+      <div class="dialog-actions"><button class="danger-text" type="button" data-action="delete-task">Delete</button><span></span><button type="button" data-action="close-dialog">Cancel</button><button class="primary-button" type="submit">Save task</button></div>
     </form>
-  </section>
+  </dialog>
 
-  <div id="taskLinkBackdrop" class="task-link-sheet-backdrop" hidden></div>
-  <section id="taskLinkSheet" class="task-link-sheet" hidden role="dialog" aria-modal="true" aria-labelledby="taskLinkSheetTitle">
-    <div class="sheet-handle"></div>
-    <div class="sheet-head"><div><div class="sheet-label">TASK LINK</div><h2 id="taskLinkSheetTitle">Add link</h2></div><button class="sheet-close" data-task-link-close type="button" aria-label="Close task link">×</button></div>
-    <form id="taskLinkForm">
-      <input id="taskLinkItemId" type="hidden">
-      <label class="field"><span>Web address</span><input id="taskLinkUrl" type="text" inputmode="url" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="example.com"></label>
-      <small id="taskLinkError" class="task-link-error" hidden></small>
-      <div class="task-link-sheet-actions">
-        <button id="taskLinkRemove" class="paper-button task-link-remove" data-task-link-remove type="button" hidden>Remove link</button>
-        <button class="paper-button primary" type="submit">Save link</button>
-      </div>
+  <dialog id="noteDialog" class="ledger-dialog">
+    <form id="noteForm">
+      <button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close">×</button>
+      <header class="dialog-header"><span class="micro-label">PROJECT NOTE</span><h2 id="noteDialogTitle">Note</h2></header>
+      <input id="noteId" type="hidden">
+      <label class="field"><span>Note</span><textarea id="noteBody" rows="10" required></textarea></label>
+      <div class="dialog-actions"><button id="noteDelete" class="danger-text" type="button" data-action="delete-note">Delete</button><span></span><button class="primary-button" type="submit">Save note</button></div>
     </form>
-  </section>
+  </dialog>
 
-  <div id="roadmapHelpBackdrop" class="roadmap-help-backdrop" hidden></div>
-  <section id="roadmapHelpModal" class="roadmap-help-modal" hidden role="dialog" aria-modal="true" aria-labelledby="roadmapHelpTitle">
-    <div class="roadmap-help-head">
-      <div>
-        <div class="roadmap-help-kicker">Roadmap Guide</div>
-        <h2 id="roadmapHelpTitle">Roadmap Field</h2>
-      </div>
-      <button id="roadmapHelpClose" class="roadmap-help-close" data-roadmap-help-close type="button" aria-label="Close roadmap help">×</button>
-    </div>
-    <p id="roadmapHelpDefinition" class="roadmap-help-definition"></p>
-    <div class="roadmap-help-block">
-      <strong>Ask Yourself</strong>
-      <p id="roadmapHelpQuestion"></p>
-    </div>
-    <div class="roadmap-help-block">
-      <strong>Example</strong>
-      <p id="roadmapHelpExample" class="roadmap-help-example"></p>
-    </div>
-  </section>
+  <dialog id="journalDialog" class="ledger-dialog">
+    <form id="journalForm">
+      <button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close">×</button>
+      <header class="dialog-header"><span class="micro-label">PROJECT JOURNAL</span><h2 id="journalDialogTitle">New entry</h2></header>
+      <input id="journalId" type="hidden">
+      <label class="field"><span>Thought / observation / decision</span><textarea id="journalBody" rows="10" required></textarea></label>
+      <div class="dialog-actions"><button id="journalDelete" class="danger-text" type="button" data-action="delete-journal">Delete</button><span></span><button class="primary-button" type="submit">Save entry</button></div>
+    </form>
+  </dialog>
 
-  <script src="./stationery.js?v=4"></script>
-  <script src="./theme.js?v=2"></script>
-  <script src="./journal.js?v=3"></script>
-  <script src="./roadmap-help.js?v=1"></script>
-  <script src="./task-interactions.js?v=2"></script>
-  <script src="./task-details.js?v=4"></script>
-  <script src="./task-links.js?v=4"></script>
-  <script src="./task-workspace.js?v=1"></script>
-  <script src="./mobile-task-ui.js?v=1"></script>
-  <script src="./sync-status.js?v=3"></script>
-  <script src="./auto-sync.js?v=1"></script>
+  <dialog id="worklogDialog" class="ledger-dialog">
+    <form id="worklogForm">
+      <button class="dialog-close" type="button" data-action="close-dialog" aria-label="Close">×</button>
+      <header class="dialog-header"><span class="micro-label">WORK RECORD</span><h2>Log work</h2></header>
+      <label class="field"><span>What changed?</span><textarea id="worklogSummary" rows="6" required></textarea></label>
+      <button class="primary-button full-button" type="submit">Add to history</button>
+    </form>
+  </dialog>
+
+  <dialog id="historyDialog" class="ledger-dialog wide-dialog">
+    <form method="dialog" class="dialog-chrome"><button class="dialog-close" value="cancel" aria-label="Close">×</button></form>
+    <header class="dialog-header"><span class="micro-label">CHRONOLOGY</span><h2>Work history</h2></header>
+    <div id="historyList" class="history-list"></div>
+  </dialog>
+
+  <dialog id="toolsDialog" class="ledger-dialog compact-dialog">
+    <form method="dialog" class="dialog-chrome"><button class="dialog-close" value="cancel" aria-label="Close">×</button></form>
+    <header class="dialog-header"><span class="micro-label">LEDGER</span><h2>Tools</h2></header>
+    <div class="tool-list">
+      <a href="sync.html"><strong>GitHub sync</strong><span>Connection and backup status →</span></a>
+      <button type="button" data-action="export"><strong>Export project</strong><span>Download Markdown ↓</span></button>
+      <button type="button" data-action="import"><strong>Import Markdown</strong><span>Create a project from a file ↑</span></button>
+      <button type="button" data-action="theme"><strong>Appearance</strong><span>Toggle light / dark</span></button>
+    </div>
+  </dialog>
+
+  <input id="importFile" type="file" accept=".md,text/markdown,text/plain" hidden>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden><span id="toastText"></span><button id="toastUndo" type="button" hidden>Undo</button></div>
+
+  <script src="stationery/v3.js?v=1"></script>
+  <script src="stationery/auto-sync.js?v=1"></script>
 </body>
 </html>
