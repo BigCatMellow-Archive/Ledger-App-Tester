@@ -1,0 +1,195 @@
+/*
+  AIDB semantic color system for Ledger.
+
+  Color is tied to product meaning rather than decoration:
+  WORK       = current action / active register / primary action
+  ARCHIVE    = queue / history / structural record
+  ANNOTATION = notes / commentary / secondary thinking
+  PROOF      = done / verified / successful persistence
+  ALERT      = recovery / failure / consequential warning
+
+  Loaded after visual-refresh.css so the visual grammar and color grammar can
+  evolve independently while sharing the same semantic tokens.
+*/
+
+:root{
+  /* Material surfaces */
+  --ledger-paper:#f3ebdd;
+  --ledger-paper-deep:#e8ddcc;
+  --ledger-desk:#c8baa7;
+  --ledger-ink:#201b17;
+  --ledger-ink-2:#5e564f;
+  --ledger-rule:#cfc3b1;
+  --ledger-rule-strong:#a5947f;
+
+  /* Semantic roles */
+  --ledger-work:#a64638;
+  --ledger-work-strong:#7b3028;
+  --ledger-archive:#51697a;
+  --ledger-annotation:#b8822e;
+  --ledger-proof:#5e7750;
+  --ledger-alert:#8e3b32;
+
+  /* Backward-compatible aliases used by the structural AIDB layer */
+  --ledger-red:var(--ledger-work);
+  --ledger-red-dark:var(--ledger-work-strong);
+  --ledger-blue:var(--ledger-archive);
+
+  /* Semantic washes */
+  --ledger-work-wash:rgba(166,70,56,.085);
+  --ledger-archive-wash:rgba(81,105,122,.075);
+  --ledger-annotation-wash:rgba(184,130,46,.085);
+  --ledger-proof-wash:rgba(94,119,80,.09);
+  --ledger-alert-wash:rgba(142,59,50,.09);
+
+  --ledger-active-wash:var(--ledger-work-wash);
+  --ledger-open-wash:var(--ledger-archive-wash);
+  --ledger-note-wash:var(--ledger-annotation-wash);
+}
+
+html[data-theme="dark"]{
+  /* Dark mode is its own material system, not an inversion. */
+  --ledger-paper:#191613;
+  --ledger-paper-deep:#24201c;
+  --ledger-desk:#100f0d;
+  --ledger-ink:#f1e8da;
+  --ledger-ink-2:#b8ada0;
+  --ledger-rule:#4e463e;
+  --ledger-rule-strong:#786c60;
+
+  --ledger-work:#d36c5c;
+  --ledger-work-strong:#efa092;
+  --ledger-archive:#86a3b4;
+  --ledger-annotation:#d1a55b;
+  --ledger-proof:#8faa7a;
+  --ledger-alert:#d06a60;
+
+  --ledger-work-wash:rgba(211,108,92,.12);
+  --ledger-archive-wash:rgba(134,163,180,.10);
+  --ledger-annotation-wash:rgba(209,165,91,.10);
+  --ledger-proof-wash:rgba(143,170,122,.11);
+  --ledger-alert-wash:rgba(208,106,96,.12);
+}
+
+/* ---------- Identity / active work ---------- */
+.masthead{
+  background:
+    linear-gradient(90deg,var(--ledger-work) 0 5px,transparent 5px),
+    var(--ledger-paper);
+}
+.masthead::after{
+  background:linear-gradient(90deg,var(--ledger-ink) 0 62%,var(--ledger-work) 62% 78%,var(--ledger-archive) 78% 100%);
+}
+.eyebrow,
+.ledger-folio-label,
+.project-kicker,
+#roadmapSummary::before,
+.ledger-register-now .section-rule::before{
+  color:var(--ledger-work-strong);
+}
+.project-tab.active::before,
+.ledger-register-now,
+.empty-state,
+.sync-nudge,
+.bottom-ruler,
+.sheet-head{
+  border-color:var(--ledger-work)!important;
+}
+.index-add,
+.ledger-action-primary,
+.paper-button.primary,
+.bottom-ruler .capture-nav{
+  background:var(--ledger-work)!important;
+  border-color:var(--ledger-work-strong)!important;
+}
+.index-add:hover,
+.ledger-action-primary:hover,
+.paper-button.primary:hover,
+.bottom-ruler .capture-nav:hover{
+  background:var(--ledger-work-strong)!important;
+}
+
+/* ---------- Archive / structural record ---------- */
+.project-strip-wrap{
+  background:color-mix(in srgb,var(--ledger-paper-deep) 88%,var(--ledger-archive) 12%)!important;
+}
+.ledger-register-open{border-top-color:var(--ledger-archive)}
+.ledger-register-open .section-rule::before,
+.stamp.open{color:var(--ledger-archive)}
+.ledger-register-open .entry:hover{background:var(--ledger-archive-wash)}
+.done-section{
+  border-top-color:color-mix(in srgb,var(--ledger-archive) 62%,var(--ledger-rule-strong));
+}
+.done-section summary{color:color-mix(in srgb,var(--ledger-archive) 72%,var(--ledger-ink-2))}
+
+/* ---------- Annotation / notes ---------- */
+#notesSection{border-top-color:var(--ledger-annotation)}
+#notesSection .section-rule > span:first-child{color:var(--ledger-annotation)}
+.memo-card::before{background:var(--ledger-annotation)}
+.memo-card:hover{background:var(--ledger-annotation-wash)}
+.journal-add{color:var(--ledger-annotation)}
+
+/* ---------- Proof / completion ---------- */
+.stamp.done{color:var(--ledger-proof)}
+.done-list .entry:hover{background:var(--ledger-proof-wash)}
+.done-list .entry::before{background:color-mix(in srgb,var(--ledger-proof) 65%,transparent)}
+.status-actions button[data-status="DONE"].selected,
+.status-actions button.selected[data-status="DONE"]{
+  color:var(--ledger-proof);
+  border-color:var(--ledger-proof);
+  background:var(--ledger-proof-wash);
+}
+
+/* ---------- Alert / recovery ---------- */
+.stamp.blocked{color:var(--ledger-alert)}
+[role="alert"],
+.storage-recovery-state,
+#storageRecoveryState{
+  border-color:var(--ledger-alert)!important;
+}
+[role="alert"] strong,
+.storage-recovery-state h2,
+#storageRecoveryState h2{
+  color:var(--ledger-alert);
+}
+
+/* ---------- Form and interaction state ---------- */
+.field input:focus,
+.field textarea:focus{
+  border-color:var(--ledger-work)!important;
+  box-shadow:inset 3px 0 0 var(--ledger-work)!important;
+}
+.project-link:hover,
+.tool-row:hover > span:last-child{
+  color:var(--ledger-work);
+}
+
+/* ---------- Dark-mode surface corrections ---------- */
+html[data-theme="dark"] .masthead{
+  background:
+    linear-gradient(90deg,var(--ledger-work) 0 5px,transparent 5px),
+    var(--ledger-paper);
+}
+html[data-theme="dark"] .project-strip-wrap{
+  background:color-mix(in srgb,var(--ledger-paper-deep) 88%,var(--ledger-archive) 12%)!important;
+}
+html[data-theme="dark"] .paper{
+  background:
+    linear-gradient(90deg,transparent 0 35px,color-mix(in srgb,var(--ledger-work) 24%,transparent) 35px 36px,transparent 36px),
+    repeating-linear-gradient(0deg,transparent 0 35px,color-mix(in srgb,var(--ledger-archive) 12%,transparent) 35px 36px),
+    var(--ledger-paper);
+}
+
+@media(max-width:719px){
+  .masthead{
+    background:
+      linear-gradient(90deg,var(--ledger-work) 0 4px,transparent 4px),
+      var(--ledger-paper);
+  }
+  .paper{
+    background:
+      linear-gradient(90deg,transparent 0 22px,color-mix(in srgb,var(--ledger-work) 26%,transparent) 22px 23px,transparent 23px),
+      repeating-linear-gradient(0deg,transparent 0 35px,color-mix(in srgb,var(--ledger-archive) 12%,transparent) 35px 36px),
+      var(--ledger-paper);
+  }
+}
