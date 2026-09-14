@@ -5,9 +5,12 @@
   --sans:'Inter',Arial,Helvetica,sans-serif;
 }
 
+html{font-size:16px}
+body{line-height:1.45}
+
 .project-intro h1{
-  line-height:.92;
-  letter-spacing:-.055em;
+  line-height:.94;
+  letter-spacing:-.05em;
   font-weight:700;
 }
 
@@ -18,7 +21,7 @@
 .dialog-header h2,
 .empty-state h1,
 .system-state h1{
-  letter-spacing:-.035em;
+  letter-spacing:-.03em;
 }
 
 .checkpoint-card h2,
@@ -31,4 +34,95 @@
 .brief-content p,
 .queue-empty{
   font-family:var(--sans);
+}
+
+/* Readability floor: hierarchy should not depend on microscopic type. */
+.brand small{font-size:10px;line-height:1.25}
+.project-tab>span{font-size:10px;line-height:1.2}
+.project-tab strong{font-size:13px;line-height:1.25}
+.project-tab small{font-size:10px;line-height:1.2}
+.top-actions button{font-size:11px;line-height:1.2}
+.sync-status{font-size:10.5px;line-height:1.3}
+.project-meta,.micro-label{font-size:11px;line-height:1.3}
+.project-description{font-size:15px;line-height:1.55}
+.project-links a{font-size:11px;line-height:1.25}
+.project-tools button{font-size:11px;line-height:1.2}
+.checkpoint-time{font-size:11px;line-height:1.3}
+.checkpoint-card p{font-size:14.5px;line-height:1.55}
+.checkpoint-context{font-size:12.5px;line-height:1.4}
+.checkpoint-actions button{font-size:11px;line-height:1.2}
+.chronicle-heading span{font-size:10.5px;line-height:1.25}
+.chronicle-event time{font-size:10.5px;line-height:1.35}
+.event-type{font-size:10px;line-height:1.25}
+.event-copy p{font-size:14.5px;line-height:1.5}
+.event-copy small{font-size:12px;line-height:1.45}
+.event-action{font-size:10.5px;line-height:1.25}
+.chronicle-more{font-size:11px;line-height:1.2}
+.chronicle-empty span{font-size:13px;line-height:1.45}
+.next-head span{font-size:11px;line-height:1.25}
+.next-head button{font-size:11px;line-height:1.2}
+.queue-num{font-size:10px;line-height:1.3}
+.queue-state{font-size:10px;line-height:1.25}
+.queue-title{font-size:13.5px;line-height:1.4}
+.queue-item small{font-size:10.5px;line-height:1.35}
+.queue-go{font-size:10.5px;line-height:1.2}
+.brief>header strong{font-size:10.5px;line-height:1.25}
+.brief>header button{font-size:10.5px;line-height:1.2}
+.brief-content span{font-size:10px;line-height:1.3}
+.brief-content p{font-size:13px;line-height:1.5}
+.brief-empty{font-size:13px;line-height:1.45}
+.rail-actions button{font-size:10.5px;line-height:1.2}
+.field>span,.field-group legend{font-size:11px;line-height:1.3}
+.field small{font-size:11px;line-height:1.4}
+.editor-details summary,.editor-section-head{font-size:11px;line-height:1.3}
+.notation-row small{font-size:10.5px;line-height:1.35}
+.notation-row p{font-size:13px;line-height:1.45}
+.dialog-project-list small{font-size:11px;line-height:1.35}
+.history-item time{font-size:10.5px;line-height:1.35}
+.history-item p{font-size:14px;line-height:1.45}
+.history-item small{font-size:12px;line-height:1.4}
+.tool-list span{font-size:12px;line-height:1.4}
+.context-empty{font-size:13px;line-height:1.45}
+
+@media(max-width:800px){
+  .brand strong{font-size:21px}
+  .mobile-switch{font-size:12px;line-height:1.2}
+  .project-meta,.micro-label{font-size:12px;line-height:1.3}
+  .project-description{font-size:16px;line-height:1.55}
+  .checkpoint-time{font-size:11px;line-height:1.35}
+  .checkpoint-card h2{font-size:28px;line-height:1.08}
+  .checkpoint-card p{font-size:15px;line-height:1.55}
+  .checkpoint-context{font-size:13px;line-height:1.45}
+  .checkpoint-actions button{font-size:12px}
+  .chronicle-heading h2{font-size:27px}
+  .chronicle-heading span{font-size:11px}
+  .chronicle-event time{font-size:11px;line-height:1.35}
+  .event-type{font-size:11px}
+  .event-copy p{font-size:15px;line-height:1.5}
+  .event-copy small{font-size:13px;line-height:1.45}
+  .event-action{font-size:11px}
+  .chronicle-more{font-size:12px}
+  .next-head h2{font-size:28px}
+  .next-head span,.next-head button{font-size:12px}
+  .queue-num{font-size:11px}
+  .queue-state{font-size:11px}
+  .queue-title{font-size:15px;line-height:1.4}
+  .queue-item small{font-size:12px}
+  .queue-go{font-size:12px}
+  .brief>header strong,.brief>header button{font-size:11px}
+  .brief-content span{font-size:11px}
+  .brief-content p{font-size:14px;line-height:1.5}
+  .rail-actions button{font-size:12px}
+  .field>span,.field-group legend{font-size:12px}
+  .field input,.field textarea,.field select{font-size:16px;line-height:1.45}
+  .field small{font-size:12px}
+  .editor-details summary,.editor-section-head{font-size:12px}
+  .notation-row small{font-size:11px}
+  .notation-row p{font-size:14px}
+  .dialog-project-list small{font-size:12px}
+  .history-item time{font-size:11px}
+  .history-item p{font-size:14px}
+  .history-item small{font-size:12px}
+  .tool-list span{font-size:12px}
+  .context-empty{font-size:14px}
 }
