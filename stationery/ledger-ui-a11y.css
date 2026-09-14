@@ -32,3 +32,97 @@ html[data-theme="dark"]{
 
 /* Expressive role colors remain available as marks/backgrounds; small text uses
    contrast-safe role variants so state is not weakened for visual subtlety. */
+
+/* --- Council follow-up: task row geometry ---
+   The retained task-link module historically reserved only 54px for status,
+   while the clean-sheet status stamp is 64px wide. Reserve a real badge lane so
+   status and title never overlap. Mobile <=600px keeps its purpose-built grid. */
+@media(min-width:601px){
+  #activeItems .entry:has(> .task-link-actions),
+  #openItems .entry:has(> .task-link-actions),
+  .done-list .entry:has(> .task-link-actions){
+    grid-template-columns:72px minmax(0,1fr) auto 24px;
+    column-gap:14px;
+    align-items:start;
+  }
+
+  .entry:has(> .task-link-actions) > .stamp{
+    width:64px;
+    min-width:64px;
+    justify-self:start;
+    align-self:start;
+  }
+
+  .entry:has(> .task-link-actions) > .entry-main,
+  .entry:has(> .task-link-actions) > .entry-content{
+    min-width:0;
+    padding-left:0;
+  }
+}
+
+/* --- Record column ---
+   Notes / journal / roadmap are one independent reference stream. This prevents
+   the CSS-grid auto-placement cursor from pushing them halfway down the page as
+   the work column grows. */
+.record-column{
+  grid-column:2;
+  grid-row:2 / span 4;
+  min-width:0;
+  align-self:start;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
+}
+.record-column > #roadmapSummary,
+.record-column > #notesSection,
+.record-column > #journalSection{
+  width:100%;
+  margin:0;
+}
+
+/* --- Mobile command bar ---
+   Four persistent actions each receive a real thumb target and readable label.
+   Extra document padding keeps the last content from disappearing underneath it. */
+@media(max-width:780px){
+  .paper{
+    padding-bottom:calc(126px + var(--safe-bottom));
+  }
+
+  .record-column{
+    grid-column:1;
+    grid-row:auto;
+    order:5;
+    gap:24px;
+  }
+  .record-column > #roadmapSummary,
+  .record-column > #notesSection,
+  .record-column > #journalSection{
+    order:initial!important;
+    margin:0;
+  }
+
+  .bottom-ruler{
+    min-height:calc(68px + var(--safe-bottom));
+    padding-bottom:var(--safe-bottom);
+  }
+  .bottom-ruler button{
+    min-width:0;
+    min-height:68px;
+    height:68px;
+    padding:6px 4px 5px;
+    gap:5px;
+    font-size:11px;
+    line-height:1.1;
+    touch-action:manipulation;
+  }
+  .bottom-ruler .nav-mark{
+    font-size:19px;
+    line-height:1;
+  }
+}
+
+@media(max-width:430px){
+  .bottom-ruler button{
+    font-size:10px;
+  }
+}

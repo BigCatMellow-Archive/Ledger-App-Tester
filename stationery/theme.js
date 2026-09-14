@@ -40,7 +40,7 @@
     disableLegacyPageStyles();
     appendLink('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap','data-ledger-clean-fonts');
     appendLink('./ledger-ui.css?v=20260914-1','data-ledger-clean-ui');
-    appendLink('./ledger-ui-a11y.css?v=20260914-1','data-ledger-clean-a11y');
+    appendLink('./ledger-ui-a11y.css?v=20260914-2','data-ledger-clean-a11y');
     document.body?.classList.add('clean-sheet-ui');
   }
 
@@ -70,9 +70,32 @@
     if(node&&node.textContent!==value)node.textContent=value;
   }
 
+  function ensureRecordColumn(){
+    const view=document.getElementById('projectView');
+    if(!view)return;
+
+    let record=view.querySelector(':scope > .record-column');
+    if(!record){
+      record=document.createElement('aside');
+      record.className='record-column';
+      record.setAttribute('aria-label','Project reference and record');
+
+      const done=document.getElementById('doneSection');
+      if(done&&done.parentElement===view)view.insertBefore(record,done);
+      else view.appendChild(record);
+    }
+
+    ['roadmapSummary','notesSection','journalSection'].forEach(id=>{
+      const section=document.getElementById(id);
+      if(section&&section.parentElement!==record)record.appendChild(section);
+    });
+  }
+
   function ensureProjectChrome(){
     const heading=document.querySelector('#projectView .project-heading');
     if(!heading)return;
+
+    ensureRecordColumn();
 
     const main=heading.querySelector(':scope > div:first-child');
     const menu=heading.querySelector(':scope > .quiet-button, .project-heading-actions > .quiet-button');
