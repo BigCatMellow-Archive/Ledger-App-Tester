@@ -7,13 +7,20 @@
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   let refreshQueued = false;
 
-  function loadVisualRefresh(){
-    if(document.querySelector('link[data-ledger-visual-refresh]')) return;
+  function appendStylesheet(href, dataAttribute){
+    const selector = `link[${dataAttribute}]`;
+    if(document.querySelector(selector)) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = './visual-refresh.css?v=20260914-2';
-    link.dataset.ledgerVisualRefresh = 'true';
+    link.href = href;
+    link.setAttribute(dataAttribute, 'true');
     document.head.appendChild(link);
+  }
+
+  function loadDesignLayers(){
+    /* Structural AIDB grammar first, semantic color grammar second. */
+    appendStylesheet('./visual-refresh.css?v=20260914-2', 'data-ledger-visual-refresh');
+    appendStylesheet('./color-system.css?v=20260914-1', 'data-ledger-color-system');
   }
 
   function savedTheme(){
@@ -25,7 +32,7 @@
     const next = theme === 'dark' ? 'dark' : 'light';
     root.dataset.theme = next;
     localStorage.setItem(THEME_KEY, next);
-    if (metaTheme) metaTheme.setAttribute('content', next === 'dark' ? '#171613' : '#e8e4db');
+    if (metaTheme) metaTheme.setAttribute('content', next === 'dark' ? '#191613' : '#f3ebdd');
 
     const button = document.getElementById('themeToggle');
     if (button){
@@ -143,7 +150,7 @@
     });
   }
 
-  loadVisualRefresh();
+  loadDesignLayers();
   applyTheme(savedTheme());
 
   document.addEventListener('DOMContentLoaded', () => {
