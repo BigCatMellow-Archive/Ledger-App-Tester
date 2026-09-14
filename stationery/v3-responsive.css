@@ -29,18 +29,29 @@
   .return-label-block{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px;padding:0 0 8px;border-right:0;border-bottom:3px solid var(--work)}
   .return-label-block strong{margin:0;text-align:right}
   .return-change{font-size:16px}.return-action{justify-content:flex-start}
-  .project-layout{grid-template-columns:1fr;gap:0}
-  .context-margin{margin-top:8px;padding-left:0;border-left:0}
+  .return-action button{min-height:44px}
+  .project-line{font-size:10px}
+  .state-word{min-height:26px;font-size:9px}
+  .task-meta{font-size:10px;line-height:1.45}
+  .section-actions button,.context-heading button,.context-more{min-height:44px;display:inline-flex;align-items:center}
+  .context-heading{min-height:44px}
+  .project-layout{display:flex;flex-direction:column;gap:0}
+  .work-stream{display:contents}
+  .now-section{order:1}
+  .queue-section{order:2}
+  .context-margin{order:3;margin-top:8px;padding-left:0;border-left:0}
+  .archive-section{order:4}
+  .context-stream-label{margin-top:2px;margin-bottom:18px}
   .context-section{margin-bottom:26px}
   .brief-section{margin-top:6px}
   .task-ticket,.queue-task-list .task-ticket{grid-template-columns:31px minmax(0,1fr);gap:10px;padding:13px 0}
   .task-quick{grid-column:2;justify-content:flex-start;flex-wrap:wrap;padding-top:8px}
-  .task-quick button,.task-quick a{min-height:38px}
+  .task-quick button,.task-quick a{min-height:44px}
   .task-topline{align-items:flex-start;flex-wrap:wrap}
   .task-title{flex-basis:100%;font-size:15px}
   .state-word{order:-1}
   .mobile-dock{position:fixed;z-index:70;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom);border-top:4px solid var(--work);background:var(--structure);color:white;box-shadow:0 -10px 30px rgba(0,0,0,.18)}
-  .mobile-dock button{min-width:0;min-height:68px;padding:6px 3px 5px;border:0;border-right:1px solid rgba(255,255,255,.18);background:transparent;color:#e9f0f3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font:600 9px/1 var(--mono)}
+  .mobile-dock button{min-width:0;min-height:68px;padding:6px 3px 5px;border:0;border-right:1px solid rgba(255,255,255,.18);background:transparent;color:#e9f0f3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font:600 10px/1 var(--mono)}
   .mobile-dock button:last-child{border-right:0}
   .mobile-dock .dock-primary{background:var(--work);color:white}
   .dock-icon{font-size:20px;line-height:1}
