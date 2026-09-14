@@ -5,6 +5,15 @@
   const root = document.documentElement;
   const metaTheme = document.querySelector('meta[name="theme-color"]');
 
+  function loadVisualRefresh(){
+    if(document.querySelector('link[data-ledger-visual-refresh]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './visual-refresh.css?v=20260914-1';
+    link.dataset.ledgerVisualRefresh = 'true';
+    document.head.appendChild(link);
+  }
+
   function savedTheme(){
     const value = localStorage.getItem(THEME_KEY);
     return value === 'dark' ? 'dark' : 'light';
@@ -24,6 +33,7 @@
     }
   }
 
+  loadVisualRefresh();
   applyTheme(savedTheme());
 
   document.addEventListener('DOMContentLoaded', () => {

@@ -1,0 +1,231 @@
+/* Visual hierarchy refresh — preserve Ledger's notebook identity while making work state scan faster. */
+:root{
+  --surface:#fffefa;
+  --surface-muted:#efede7;
+  --surface-raised:#ffffff;
+  --focus-wash:rgba(166,83,73,.075);
+  --open-wash:rgba(101,121,129,.075);
+  --panel-shadow:0 10px 26px rgba(48,46,42,.08);
+  --panel-border:#cbc7bd;
+}
+
+html[data-theme="dark"]{
+  --surface:#2a2722;
+  --surface-muted:#332f29;
+  --surface-raised:#2e2b26;
+  --focus-wash:rgba(207,107,92,.09);
+  --open-wash:rgba(147,171,181,.08);
+  --panel-shadow:0 12px 30px rgba(0,0,0,.20);
+  --panel-border:#514b42;
+}
+
+/* Frame: more editorial workspace, less undifferentiated sheet. */
+.desk{max-width:1120px}
+.masthead{
+  padding:30px 32px 22px;
+  border-bottom:0;
+  background:radial-gradient(circle at 88% 18%,rgba(166,83,73,.08),transparent 22rem),var(--paper);
+}
+.masthead::after{
+  content:"";
+  position:absolute;
+  left:32px;right:32px;bottom:0;height:1px;
+  background:linear-gradient(90deg,var(--verm) 0 80px,var(--rule-dark) 80px 100%);
+}
+.eyebrow{color:var(--verm-dark);font-weight:800}
+h1{margin-top:7px;font-size:42px;letter-spacing:-.045em}
+.date-block,.theme-toggle{background:var(--surface)!important;box-shadow:none;border-color:var(--panel-border)}
+.theme-toggle:hover,.date-block:hover{border-color:var(--ink-soft)}
+
+/* Project index becomes a compact navigation rail. */
+.project-strip-wrap{
+  position:sticky;top:0;z-index:24;
+  padding:10px 68px 11px 32px;
+  border-bottom:1px solid var(--panel-border);
+  background:color-mix(in srgb,var(--paper-deep) 92%,transparent)!important;
+  backdrop-filter:blur(14px);
+  box-shadow:0 5px 18px rgba(48,46,42,.05);
+}
+.project-strip-wrap .strip-label{margin-bottom:8px}
+.project-tabs{gap:8px;padding:1px 0}
+.project-tab{
+  min-height:34px;padding:7px 13px;
+  border:1px solid transparent!important;
+  border-radius:999px!important;
+  background:transparent!important;
+  color:var(--ink-soft)!important;
+  font-weight:650;
+}
+.project-tab:hover{background:var(--surface)!important;color:var(--ink)!important;border-color:var(--panel-border)!important}
+.project-tab.active{background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important;box-shadow:0 3px 10px rgba(39,38,35,.12)}
+.project-tab.active::after{content:none}
+.index-add{
+  right:24px;bottom:11px;width:34px;height:34px;
+  border:0;border-radius:50%!important;background:var(--verm);color:#fff;
+  box-shadow:0 3px 10px rgba(127,64,57,.20);
+}
+.index-add:hover{transform:translateY(-1px)}
+
+/* Paper becomes a quiet canvas; the project itself carries the hierarchy. */
+.paper{
+  padding:30px 32px 112px;
+  background:linear-gradient(90deg,transparent 0 35px,rgba(166,83,73,.065) 35px 36px,transparent 36px),var(--paper);
+}
+#projectView:not([hidden]){
+  display:grid;
+  grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr);
+  grid-template-rows:auto auto auto minmax(0,auto) auto auto;
+  column-gap:22px;row-gap:0;
+}
+.project-heading{
+  grid-column:1 / -1;grid-row:1;
+  margin:0 0 22px;padding:24px 26px;align-items:center;
+  border:1px solid var(--panel-border);border-left:5px solid var(--verm);border-radius:16px;
+  background:linear-gradient(120deg,var(--focus-wash),transparent 42%),var(--surface);
+  box-shadow:var(--panel-shadow);
+}
+.project-kicker{
+  display:inline-flex;align-items:center;min-height:25px;padding:4px 9px;
+  border:1px solid color-mix(in srgb,var(--verm) 45%,var(--panel-border));border-radius:999px;
+  color:var(--verm-dark);background:var(--focus-wash);letter-spacing:.08em;
+}
+.project-heading h2{margin-top:10px;font-size:34px;line-height:1.06}
+.project-description{max-width:760px;margin-top:9px;color:var(--ink-soft);font-size:14px}
+.project-links{margin-top:13px}
+.quiet-button{
+  width:auto;height:38px;padding:0 14px;border-radius:999px;
+  background:transparent!important;border-color:var(--panel-border);
+  font-size:0;letter-spacing:0;white-space:nowrap;
+}
+.quiet-button::after{content:"Project options";font-size:12px;font-weight:700}
+.quiet-button:hover{background:var(--surface-muted)!important;border-color:var(--ink-soft)}
+
+/* Roadmap framing reads like a brief instead of another task list. */
+#roadmapSummary{
+  grid-column:1 / -1;grid-row:2;margin:0 0 22px;padding:16px 18px;
+  border:1px solid var(--panel-border);border-radius:14px;background:var(--surface);
+  box-shadow:0 5px 16px rgba(48,46,42,.045);
+}
+.roadmap-row{grid-template-columns:145px 1fr;gap:16px;padding:3px 0}
+.roadmap-row + .roadmap-row{padding-top:10px;border-top:1px solid var(--rule)}
+.roadmap-row strong{color:var(--verm-dark)}
+
+/* Two-column working set on larger screens. */
+#projectView > .section-rule:has(+ #activeItems){grid-column:1;grid-row:3}
+#activeItems{grid-column:1;grid-row:4}
+#projectView > .section-rule:has(+ #openItems){grid-column:2;grid-row:3}
+#openItems{grid-column:2;grid-row:4}
+#notesSection{grid-column:1;grid-row:5}
+#journalSection{grid-column:2;grid-row:5}
+#doneSection{grid-column:1 / -1;grid-row:6}
+
+#projectView > .section-rule:has(+ #activeItems),
+#projectView > .section-rule:has(+ #openItems){
+  margin:0;padding:13px 15px 9px;
+  border:1px solid var(--panel-border);border-bottom:0;border-radius:14px 14px 0 0;
+  background:var(--surface);letter-spacing:.08em;
+}
+#projectView > .section-rule:has(+ #activeItems){border-top:3px solid var(--verm);background:linear-gradient(180deg,var(--focus-wash),var(--surface) 70%)}
+#projectView > .section-rule:has(+ #openItems){border-top:3px solid var(--blue);background:linear-gradient(180deg,var(--open-wash),var(--surface) 70%)}
+#activeItems,#openItems{
+  min-height:92px;margin:0 0 22px;padding:0 14px 8px;
+  border:1px solid var(--panel-border);border-top:0;border-radius:0 0 14px 14px;background:var(--surface);
+}
+
+/* Entries now read as selectable work objects, not ruled text lines. */
+.entry{
+  grid-template-columns:58px minmax(0,1fr) 28px;gap:11px;min-height:58px;
+  padding:12px 5px 12px 2px;border-bottom:1px solid var(--rule);border-radius:8px;
+  cursor:pointer;transition:background .12s ease,transform .12s ease;
+}
+.entry:last-child{border-bottom:0}
+.entry:hover{background:var(--surface-muted);transform:translateX(2px)}
+.entry-title{font-weight:700;letter-spacing:-.01em}
+.entry-meta{margin-top:5px}
+.stamp{min-height:24px;padding:4px 6px;border-radius:999px;transform:none;background:transparent;font-size:9px}
+.entry-chevron{align-self:center;color:var(--ink-soft)}
+
+/* Notes and journal become companion reference panels. */
+#notesSection,#journalSection{
+  align-self:start;margin:0 0 22px;padding:0 14px 10px;
+  border:1px solid var(--panel-border);border-radius:14px;background:var(--surface);
+  box-shadow:0 5px 16px rgba(48,46,42,.035);
+}
+#notesSection .section-rule,#journalSection .section-rule{
+  margin:0 -14px 5px;padding:13px 14px 9px;border-bottom:1px solid var(--panel-border);
+}
+.memo-list{margin-left:0}
+.memo-card{margin:0;padding:12px 8px 12px 17px;border-bottom:1px solid var(--rule);border-radius:7px;font-family:inherit}
+.memo-card:last-child{border-bottom:0}
+.memo-card:hover{background:var(--surface-muted)}
+.memo-card::before{top:19px}
+
+.done-section{
+  margin:0;padding:11px 14px;border:1px dashed var(--panel-border);border-radius:12px;
+  background:color-mix(in srgb,var(--surface-muted) 58%,transparent);
+}
+.done-section summary{min-height:28px;align-items:center}
+.done-list{margin-left:0}
+
+/* Empty states should look intentional, not unfinished. */
+.empty-line{min-height:64px;display:flex;align-items:center;padding:14px 4px;color:var(--ink-soft)}
+.empty-state{
+  max-width:620px;margin:50px auto 0;padding:52px 28px;
+  border:1px dashed var(--panel-border);border-radius:18px;background:var(--surface);
+}
+.empty-number{color:color-mix(in srgb,var(--verm) 28%,var(--paper))}
+
+/* Sync status is an inline status strip, visually separate from project navigation. */
+.sync-nudge{
+  margin:14px 32px 0;border:1px solid color-mix(in srgb,var(--verm) 38%,var(--panel-border));
+  border-radius:10px;background:var(--focus-wash);
+}
+
+/* Navigation becomes a compact floating tool dock. */
+.bottom-ruler{
+  width:min(600px,calc(100% - 40px));height:60px;bottom:16px;
+  border:1px solid rgba(255,255,255,.10);border-top:1px solid rgba(255,255,255,.10);
+  border-radius:18px;overflow:hidden;background:rgba(35,34,31,.96)!important;
+  box-shadow:0 14px 35px rgba(25,22,19,.24);backdrop-filter:blur(14px);
+}
+.bottom-ruler button{position:relative;min-width:0;font-weight:650;opacity:.82}
+.bottom-ruler button:hover{opacity:1;background:rgba(255,255,255,.055)}
+.bottom-ruler .capture-nav{margin:7px;border-radius:11px;background:var(--verm)!important;color:#fff!important;opacity:1}
+.bottom-ruler .capture-nav .nav-mark{color:#fff}
+
+/* Sheets feel like part of the same component system. */
+.sheet{border-color:var(--panel-border);background:var(--paper)!important;box-shadow:0 -18px 50px rgba(31,28,24,.26)}
+.sheet-head{border-bottom-color:var(--verm)}
+.paper-button{transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+.paper-button:hover{transform:translateY(-1px)}
+.paper-button.primary:hover{box-shadow:3px 4px 0 var(--verm-dark)}
+
+@media(min-width:720px){
+  body{padding:24px 24px 96px}
+  .desk{min-height:calc(100vh - 48px);border:1px solid var(--panel-border);box-shadow:0 24px 70px rgba(48,46,42,.16)}
+  .masthead,.project-strip-wrap{padding-left:42px;padding-right:42px}
+  .masthead::after{left:42px;right:42px}
+  .project-strip-wrap{padding-right:82px}
+  .paper{padding-left:42px;padding-right:42px}
+  .project-heading,.section-rule,.entry-list,.memo-list,.done-section,.roadmap-summary{margin-left:0}
+}
+
+@media(max-width:719px){
+  .masthead{padding:22px 18px 17px}
+  .masthead::after{left:18px;right:18px}
+  h1{font-size:36px}
+  .project-strip-wrap{padding:9px 58px 10px 18px}
+  .index-add{right:15px;bottom:10px}
+  .paper{padding:20px 15px 98px;background:var(--paper)}
+  #projectView:not([hidden]){display:grid;grid-template-columns:1fr}
+  .project-heading,#roadmapSummary,#projectView > .section-rule:has(+ #activeItems),#activeItems,#projectView > .section-rule:has(+ #openItems),#openItems,#notesSection,#journalSection,#doneSection{grid-column:1;grid-row:auto}
+  .project-heading{margin-bottom:16px;padding:18px 17px;align-items:flex-start}
+  .project-heading h2{font-size:29px}
+  .quiet-button{padding:0 11px}
+  .quiet-button::after{content:"Options"}
+  #roadmapSummary{margin-bottom:16px}
+  #activeItems,#openItems{margin-bottom:16px}
+  #notesSection,#journalSection{margin-bottom:16px}
+  .sync-nudge{margin:10px 15px 0}
+  .bottom-ruler{left:10px;right:10px;width:auto;bottom:8px;transform:none;height:58px;border-radius:16px}
+}
