@@ -53,13 +53,22 @@
     section.append(rule,list);
   }
 
+  function projectHeadingMain(heading){
+    const known=heading.querySelector(':scope > .ledger-project-heading-main');
+    if(known)return known;
+    const candidate=[...heading.children].find(node=>
+      node.tagName==='DIV'&&!node.classList.contains('ledger-folio-block')&&!node.classList.contains('ledger-project-actions')
+    );
+    if(candidate)candidate.classList.add('ledger-project-heading-main');
+    return candidate||null;
+  }
+
   function enhanceStructure(){
     const view=document.getElementById('projectView');
     const heading=view?.querySelector('.project-heading');
     if(!view||!heading)return;
 
-    const main=heading.firstElementChild;
-    if(main&&!main.classList.contains('ledger-project-heading-main'))main.classList.add('ledger-project-heading-main');
+    const main=projectHeadingMain(heading);
 
     if(!heading.querySelector('.ledger-folio-block')){
       const folio=document.createElement('div');
@@ -79,12 +88,12 @@
       if(menu)heading.insertBefore(actions,menu); else heading.appendChild(actions);
     }
 
-    if(!main?.querySelector('.ledger-project-meta')){
+    if(main&&!main.querySelector('.ledger-project-meta')){
       const meta=document.createElement('div');
       meta.className='ledger-project-meta';
       meta.innerHTML='<span id="ledgerRegisterMode">REGISTER</span><span id="ledgerUpdatedAt">LOCAL RECORD</span>';
-      const kicker=main?.querySelector('.project-kicker');
-      if(kicker)kicker.insertAdjacentElement('afterend',meta); else main?.prepend(meta);
+      const kicker=main.querySelector('.project-kicker');
+      if(kicker)kicker.insertAdjacentElement('afterend',meta); else main.prepend(meta);
     }
 
     if(!document.querySelector('.ledger-register-now')){
