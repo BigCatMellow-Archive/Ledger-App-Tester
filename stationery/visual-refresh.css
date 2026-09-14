@@ -1,231 +1,663 @@
-/* Visual hierarchy refresh — preserve Ledger's notebook identity while making work state scan faster. */
+/*
+  AIDB showcase direction: REGISTERED WORK
+  Product truth -> visual grammar:
+  capture -> work -> annotate -> prove -> archive -> recover
+
+  The page is the container. Hierarchy comes from rules, margins, typography,
+  alignment, indexing, and scarce accent rather than generic card enclosure.
+*/
+
 :root{
-  --surface:#fffefa;
-  --surface-muted:#efede7;
-  --surface-raised:#ffffff;
-  --focus-wash:rgba(166,83,73,.075);
-  --open-wash:rgba(101,121,129,.075);
-  --panel-shadow:0 10px 26px rgba(48,46,42,.08);
-  --panel-border:#cbc7bd;
+  --ledger-paper:#f4f1e9;
+  --ledger-paper-deep:#e8e3d8;
+  --ledger-desk:#cbc6bb;
+  --ledger-ink:#211f1b;
+  --ledger-ink-2:#5f5a51;
+  --ledger-rule:#cbc4b7;
+  --ledger-rule-strong:#91897b;
+  --ledger-red:#a34b40;
+  --ledger-red-dark:#78382f;
+  --ledger-blue:#586f78;
+  --ledger-active-wash:rgba(163,75,64,.075);
+  --ledger-open-wash:rgba(88,111,120,.055);
+  --ledger-note-wash:rgba(116,99,68,.045);
+  --ledger-serif:ui-serif,"Iowan Old Style","Palatino Linotype","Book Antiqua",Georgia,serif;
+  --ledger-sans:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ledger-mono:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace;
 }
 
 html[data-theme="dark"]{
-  --surface:#2a2722;
-  --surface-muted:#332f29;
-  --surface-raised:#2e2b26;
-  --focus-wash:rgba(207,107,92,.09);
-  --open-wash:rgba(147,171,181,.08);
-  --panel-shadow:0 12px 30px rgba(0,0,0,.20);
-  --panel-border:#514b42;
+  --ledger-paper:#24211c;
+  --ledger-paper-deep:#2c2821;
+  --ledger-desk:#151411;
+  --ledger-ink:#eee8dc;
+  --ledger-ink-2:#b8afa0;
+  --ledger-rule:#4c463d;
+  --ledger-rule-strong:#756d60;
+  --ledger-red:#d06e60;
+  --ledger-red-dark:#ee9a8b;
+  --ledger-blue:#8da8b1;
+  --ledger-active-wash:rgba(208,110,96,.09);
+  --ledger-open-wash:rgba(141,168,177,.07);
+  --ledger-note-wash:rgba(194,175,137,.045);
 }
 
-/* Frame: more editorial workspace, less undifferentiated sheet. */
-.desk{max-width:1120px}
+html,body{background:var(--ledger-desk);color:var(--ledger-ink)}
+body{font-family:var(--ledger-sans);background-image:none}
+
+/* ---------- Product frame / identity ---------- */
+.desk{
+  max-width:1180px;
+  background:var(--ledger-paper);
+  box-shadow:0 20px 70px rgba(40,35,28,.12);
+}
+.desk::before{display:none}
+
 .masthead{
-  padding:30px 32px 22px;
+  min-height:128px;
+  padding:28px 40px 24px;
+  align-items:flex-end;
   border-bottom:0;
-  background:radial-gradient(circle at 88% 18%,rgba(166,83,73,.08),transparent 22rem),var(--paper);
+  background:
+    linear-gradient(90deg,var(--ledger-red) 0 5px,transparent 5px),
+    var(--ledger-paper);
 }
 .masthead::after{
   content:"";
   position:absolute;
-  left:32px;right:32px;bottom:0;height:1px;
-  background:linear-gradient(90deg,var(--verm) 0 80px,var(--rule-dark) 80px 100%);
+  left:40px;right:40px;bottom:0;
+  height:4px;
+  background:linear-gradient(90deg,var(--ledger-ink) 0 68%,var(--ledger-red) 68% 100%);
 }
-.eyebrow{color:var(--verm-dark);font-weight:800}
-h1{margin-top:7px;font-size:42px;letter-spacing:-.045em}
-.date-block,.theme-toggle{background:var(--surface)!important;box-shadow:none;border-color:var(--panel-border)}
-.theme-toggle:hover,.date-block:hover{border-color:var(--ink-soft)}
-
-/* Project index becomes a compact navigation rail. */
-.project-strip-wrap{
-  position:sticky;top:0;z-index:24;
-  padding:10px 68px 11px 32px;
-  border-bottom:1px solid var(--panel-border);
-  background:color-mix(in srgb,var(--paper-deep) 92%,transparent)!important;
-  backdrop-filter:blur(14px);
-  box-shadow:0 5px 18px rgba(48,46,42,.05);
+.eyebrow{
+  font:700 10px/1.2 var(--ledger-mono);
+  letter-spacing:.14em;
+  color:var(--ledger-red-dark);
 }
-.project-strip-wrap .strip-label{margin-bottom:8px}
-.project-tabs{gap:8px;padding:1px 0}
-.project-tab{
-  min-height:34px;padding:7px 13px;
-  border:1px solid transparent!important;
-  border-radius:999px!important;
+h1{
+  margin:5px 0 0;
+  font-family:var(--ledger-serif)!important;
+  font-size:50px;
+  line-height:.98;
+  font-weight:600;
+  letter-spacing:-.045em;
+  color:var(--ledger-ink);
+}
+.ledger-registry-line{
+  margin-top:11px;
+  font:600 10px/1.3 var(--ledger-mono);
+  letter-spacing:.09em;
+  color:var(--ledger-ink-2);
+}
+.masthead-actions{align-items:flex-end;gap:8px}
+.date-block,.theme-toggle{
+  border:1px solid var(--ledger-rule-strong);
+  border-radius:1px!important;
+  box-shadow:none!important;
   background:transparent!important;
-  color:var(--ink-soft)!important;
-  font-weight:650;
+  color:var(--ledger-ink);
 }
-.project-tab:hover{background:var(--surface)!important;color:var(--ink)!important;border-color:var(--panel-border)!important}
-.project-tab.active{background:var(--ink)!important;color:var(--paper)!important;border-color:var(--ink)!important;box-shadow:0 3px 10px rgba(39,38,35,.12)}
-.project-tab.active::after{content:none}
-.index-add{
-  right:24px;bottom:11px;width:34px;height:34px;
-  border:0;border-radius:50%!important;background:var(--verm);color:#fff;
-  box-shadow:0 3px 10px rgba(127,64,57,.20);
-}
-.index-add:hover{transform:translateY(-1px)}
+.date-block span:first-child{font-family:var(--ledger-serif)!important;font-weight:600}
+.date-block span:last-child{font-family:var(--ledger-mono);letter-spacing:.08em}
+.theme-toggle:hover{background:var(--ledger-paper-deep)!important}
 
-/* Paper becomes a quiet canvas; the project itself carries the hierarchy. */
-.paper{
-  padding:30px 32px 112px;
-  background:linear-gradient(90deg,transparent 0 35px,rgba(166,83,73,.065) 35px 36px,transparent 36px),var(--paper);
+/* ---------- Project index: edge-index grammar, not SaaS pills ---------- */
+.project-strip-wrap{
+  position:sticky;
+  top:0;
+  z-index:24;
+  padding:12px 66px 0 40px;
+  background:var(--ledger-paper-deep)!important;
+  border-bottom:1px solid var(--ledger-rule-strong);
+  box-shadow:none;
+  backdrop-filter:none;
 }
+.project-strip-wrap .strip-label{
+  margin-bottom:6px;
+  font:700 9px/1.2 var(--ledger-mono);
+  letter-spacing:.14em;
+  color:var(--ledger-ink-2);
+}
+.project-tabs{gap:3px;align-items:end}
+.project-tab{
+  position:relative;
+  min-height:39px;
+  padding:9px 14px 8px;
+  border:1px solid var(--ledger-rule-strong)!important;
+  border-bottom:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--ledger-ink-2)!important;
+  font:650 12px/1.2 var(--ledger-sans);
+  box-shadow:none!important;
+}
+.project-tab:hover{background:rgba(255,255,255,.22)!important;color:var(--ledger-ink)!important}
+.project-tab.active{
+  min-height:43px;
+  padding-top:11px;
+  background:var(--ledger-paper)!important;
+  color:var(--ledger-ink)!important;
+  border-color:var(--ledger-ink)!important;
+  font-weight:800;
+}
+.project-tab.active::before{
+  content:"";
+  position:absolute;
+  top:-1px;left:-1px;right:-1px;
+  height:4px;
+  background:var(--ledger-red);
+}
+.project-tab.active::after{display:none}
+.index-add{
+  right:22px;
+  bottom:0;
+  width:38px;
+  height:43px;
+  border:1px solid var(--ledger-ink);
+  border-bottom:0;
+  border-radius:0!important;
+  background:var(--ledger-red);
+  color:#fff;
+  box-shadow:none;
+}
+.index-add:hover{background:var(--ledger-red-dark)}
+
+/* ---------- Continuous working sheet ---------- */
+.paper{
+  min-height:calc(100vh - 150px);
+  padding:36px 40px 118px 74px;
+  background:
+    linear-gradient(90deg,transparent 0 35px,rgba(163,75,64,.18) 35px 36px,transparent 36px),
+    repeating-linear-gradient(0deg,transparent 0 35px,rgba(88,111,120,.075) 35px 36px),
+    var(--ledger-paper);
+}
+
 #projectView:not([hidden]){
   display:grid;
-  grid-template-columns:minmax(0,1.12fr) minmax(300px,.88fr);
-  grid-template-rows:auto auto auto minmax(0,auto) auto auto;
-  column-gap:22px;row-gap:0;
+  grid-template-columns:minmax(0,1.55fr) minmax(280px,.72fr);
+  column-gap:28px;
+  row-gap:0;
 }
+
+/* ---------- Project folio: product identity comes from record structure ---------- */
 .project-heading{
-  grid-column:1 / -1;grid-row:1;
-  margin:0 0 22px;padding:24px 26px;align-items:center;
-  border:1px solid var(--panel-border);border-left:5px solid var(--verm);border-radius:16px;
-  background:linear-gradient(120deg,var(--focus-wash),transparent 42%),var(--surface);
-  box-shadow:var(--panel-shadow);
+  grid-column:1 / -1;
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) auto 38px;
+  gap:18px;
+  align-items:start;
+  margin:0 0 28px;
+  padding:0 0 22px;
+  border-bottom:2px solid var(--ledger-ink);
 }
+.ledger-folio-block{
+  min-height:91px;
+  padding:7px 10px 9px 0;
+  border-right:1px solid var(--ledger-rule-strong);
+  display:grid;
+  grid-template-columns:auto auto;
+  align-content:start;
+  justify-content:start;
+  column-gap:2px;
+  color:var(--ledger-ink);
+}
+.ledger-folio-label{
+  grid-column:1 / -1;
+  margin-bottom:4px;
+  font:700 9px/1.2 var(--ledger-mono);
+  letter-spacing:.13em;
+  color:var(--ledger-red-dark);
+}
+#ledgerFolioNumber{
+  font:600 38px/.95 var(--ledger-serif);
+  letter-spacing:-.035em;
+}
+#ledgerFolioTotal{
+  align-self:end;
+  padding-bottom:3px;
+  font:600 11px/1 var(--ledger-mono);
+  color:var(--ledger-ink-2);
+}
+.ledger-project-heading-main{min-width:0}
 .project-kicker{
-  display:inline-flex;align-items:center;min-height:25px;padding:4px 9px;
-  border:1px solid color-mix(in srgb,var(--verm) 45%,var(--panel-border));border-radius:999px;
-  color:var(--verm-dark);background:var(--focus-wash);letter-spacing:.08em;
+  display:inline-block;
+  margin:0;
+  padding:0;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--ledger-red-dark);
+  font:700 10px/1.2 var(--ledger-mono)!important;
+  letter-spacing:.14em;
 }
-.project-heading h2{margin-top:10px;font-size:34px;line-height:1.06}
-.project-description{max-width:760px;margin-top:9px;color:var(--ink-soft);font-size:14px}
+.ledger-project-meta{
+  display:flex;
+  gap:13px;
+  margin:7px 0 3px;
+  font:600 10px/1.25 var(--ledger-mono);
+  letter-spacing:.055em;
+  color:var(--ledger-ink-2);
+}
+.ledger-project-meta span + span::before{content:"/";margin-right:13px;color:var(--ledger-rule-strong)}
+.project-heading h2{
+  margin:5px 0 0;
+  max-width:820px;
+  font-family:var(--ledger-serif)!important;
+  font-size:40px;
+  line-height:1.02;
+  font-weight:600;
+  letter-spacing:-.04em;
+  color:var(--ledger-ink);
+}
+.project-description{
+  max-width:760px;
+  margin:10px 0 0;
+  font:400 14px/1.55 var(--ledger-sans);
+  color:var(--ledger-ink-2);
+}
 .project-links{margin-top:13px}
+.ledger-project-actions{
+  display:flex;
+  align-items:stretch;
+  border:1px solid var(--ledger-rule-strong);
+}
+.ledger-action{
+  min-height:38px;
+  padding:8px 11px;
+  border:0;
+  border-right:1px solid var(--ledger-rule-strong);
+  border-radius:0;
+  background:transparent;
+  color:var(--ledger-ink);
+  font:700 11px/1.15 var(--ledger-sans);
+  white-space:nowrap;
+}
+.ledger-action:last-child{border-right:0}
+.ledger-action:hover{background:var(--ledger-paper-deep)}
+.ledger-action-primary{background:var(--ledger-red);color:#fff}
+.ledger-action-primary:hover{background:var(--ledger-red-dark)}
 .quiet-button{
-  width:auto;height:38px;padding:0 14px;border-radius:999px;
-  background:transparent!important;border-color:var(--panel-border);
-  font-size:0;letter-spacing:0;white-space:nowrap;
+  width:38px;
+  height:38px;
+  padding:0;
+  border:1px solid var(--ledger-rule-strong);
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--ledger-ink);
+  font-size:0;
 }
-.quiet-button::after{content:"Project options";font-size:12px;font-weight:700}
-.quiet-button:hover{background:var(--surface-muted)!important;border-color:var(--ink-soft)}
+.quiet-button::after{content:"•••";font:800 13px/1 var(--ledger-mono)}
+.quiet-button:hover{background:var(--ledger-paper-deep)!important}
 
-/* Roadmap framing reads like a brief instead of another task list. */
+/* ---------- Roadmap as project brief, not a card ---------- */
 #roadmapSummary{
-  grid-column:1 / -1;grid-row:2;margin:0 0 22px;padding:16px 18px;
-  border:1px solid var(--panel-border);border-radius:14px;background:var(--surface);
-  box-shadow:0 5px 16px rgba(48,46,42,.045);
+  grid-column:1 / -1;
+  margin:0 0 30px;
+  padding:0;
+  border:0;
+  border-top:3px solid var(--ledger-ink);
+  border-bottom:1px solid var(--ledger-ink);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
 }
-.roadmap-row{grid-template-columns:145px 1fr;gap:16px;padding:3px 0}
-.roadmap-row + .roadmap-row{padding-top:10px;border-top:1px solid var(--rule)}
-.roadmap-row strong{color:var(--verm-dark)}
-
-/* Two-column working set on larger screens. */
-#projectView > .section-rule:has(+ #activeItems){grid-column:1;grid-row:3}
-#activeItems{grid-column:1;grid-row:4}
-#projectView > .section-rule:has(+ #openItems){grid-column:2;grid-row:3}
-#openItems{grid-column:2;grid-row:4}
-#notesSection{grid-column:1;grid-row:5}
-#journalSection{grid-column:2;grid-row:5}
-#doneSection{grid-column:1 / -1;grid-row:6}
-
-#projectView > .section-rule:has(+ #activeItems),
-#projectView > .section-rule:has(+ #openItems){
-  margin:0;padding:13px 15px 9px;
-  border:1px solid var(--panel-border);border-bottom:0;border-radius:14px 14px 0 0;
-  background:var(--surface);letter-spacing:.08em;
+#roadmapSummary::before{
+  content:"PROJECT BRIEF";
+  display:block;
+  padding:8px 0 7px;
+  border-bottom:1px solid var(--ledger-rule-strong);
+  font:700 9px/1.2 var(--ledger-mono);
+  letter-spacing:.14em;
+  color:var(--ledger-red-dark);
 }
-#projectView > .section-rule:has(+ #activeItems){border-top:3px solid var(--verm);background:linear-gradient(180deg,var(--focus-wash),var(--surface) 70%)}
-#projectView > .section-rule:has(+ #openItems){border-top:3px solid var(--blue);background:linear-gradient(180deg,var(--open-wash),var(--surface) 70%)}
-#activeItems,#openItems{
-  min-height:92px;margin:0 0 22px;padding:0 14px 8px;
-  border:1px solid var(--panel-border);border-top:0;border-radius:0 0 14px 14px;background:var(--surface);
+.roadmap-row{
+  display:grid;
+  grid-template-columns:155px minmax(0,1fr);
+  gap:18px;
+  padding:10px 0;
+  border-top:1px solid var(--ledger-rule);
+  font:400 13px/1.5 var(--ledger-sans);
+}
+.roadmap-row:first-of-type{border-top:0}
+.roadmap-row strong{
+  font:700 9px/1.35 var(--ledger-mono);
+  letter-spacing:.08em;
+  color:var(--ledger-ink-2);
 }
 
-/* Entries now read as selectable work objects, not ruled text lines. */
+/* ---------- Work registers: asymmetric priority, no enclosure ---------- */
+.ledger-register{
+  align-self:start;
+  margin:0 0 34px;
+  border-top:3px solid var(--ledger-ink);
+  background:transparent;
+}
+.ledger-register-now{
+  grid-column:1;
+  padding-right:28px;
+  border-right:1px solid var(--ledger-rule-strong);
+  border-top-color:var(--ledger-red);
+}
+.ledger-register-open{
+  grid-column:2;
+  border-top-color:var(--ledger-blue);
+}
+.ledger-register .section-rule{
+  margin:0;
+  min-height:43px;
+  padding:9px 0 8px;
+  border:0;
+  border-bottom:1px solid var(--ledger-rule-strong);
+  align-items:center;
+  font:800 12px/1.2 var(--ledger-mono);
+  letter-spacing:.12em;
+  color:var(--ledger-ink);
+}
+.ledger-register-now .section-rule::before{
+  content:"CURRENT";
+  margin-right:10px;
+  color:var(--ledger-red-dark);
+  font-size:8px;
+  letter-spacing:.12em;
+}
+.ledger-register-open .section-rule::before{
+  content:"QUEUE";
+  margin-right:10px;
+  color:var(--ledger-blue);
+  font-size:8px;
+  letter-spacing:.12em;
+}
+.ledger-register .section-rule > span:first-child{margin-right:auto}
+.ledger-register .section-note{
+  font:600 10px/1.2 var(--ledger-mono);
+  color:var(--ledger-ink-2);
+  letter-spacing:.04em;
+}
+#activeItems,#openItems{margin:0;padding:0;min-height:86px;border:0;background:transparent}
+
 .entry{
-  grid-template-columns:58px minmax(0,1fr) 28px;gap:11px;min-height:58px;
-  padding:12px 5px 12px 2px;border-bottom:1px solid var(--rule);border-radius:8px;
-  cursor:pointer;transition:background .12s ease,transform .12s ease;
+  position:relative;
+  display:grid;
+  grid-template-columns:68px minmax(0,1fr) 26px;
+  gap:11px;
+  align-items:start;
+  min-height:62px;
+  padding:13px 0 12px;
+  border:0;
+  border-bottom:1px solid var(--ledger-rule);
+  border-radius:0!important;
+  background:transparent;
+  transition:background-color .12s ease;
 }
-.entry:last-child{border-bottom:0}
-.entry:hover{background:var(--surface-muted);transform:translateX(2px)}
-.entry-title{font-weight:700;letter-spacing:-.01em}
-.entry-meta{margin-top:5px}
-.stamp{min-height:24px;padding:4px 6px;border-radius:999px;transform:none;background:transparent;font-size:9px}
-.entry-chevron{align-self:center;color:var(--ink-soft)}
+.entry:hover{transform:none;background:rgba(255,255,255,.22)}
+.ledger-register-now .entry:hover{background:var(--ledger-active-wash)}
+.ledger-register-open .entry:hover{background:var(--ledger-open-wash)}
+.entry::before{
+  content:"";
+  position:absolute;
+  left:-9px;top:0;bottom:0;
+  width:2px;
+  background:transparent;
+}
+.ledger-register-now .entry:hover::before{background:var(--ledger-red)}
+.entry-title{
+  font:650 15px/1.4 var(--ledger-sans);
+  letter-spacing:-.012em;
+  color:var(--ledger-ink);
+}
+.entry-meta{
+  margin-top:5px;
+  font:500 10px/1.35 var(--ledger-mono);
+  letter-spacing:.015em;
+  color:var(--ledger-ink-2);
+}
+.stamp{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:24px;
+  width:58px;
+  padding:3px 4px;
+  border:1px solid currentColor;
+  border-radius:0!important;
+  background:transparent!important;
+  transform:none!important;
+  font:800 8px/1.1 var(--ledger-mono);
+  letter-spacing:.08em;
+}
+.stamp.active{color:var(--ledger-red-dark)}
+.stamp.open{color:var(--ledger-blue)}
+.stamp.done{color:#68705f}
+.stamp.blocked{color:#9c4339}
+.entry-chevron{align-self:center;color:var(--ledger-rule-strong);font-size:18px}
 
-/* Notes and journal become companion reference panels. */
+/* ---------- Notes + journal: annotations on the same sheet ---------- */
 #notesSection,#journalSection{
-  align-self:start;margin:0 0 22px;padding:0 14px 10px;
-  border:1px solid var(--panel-border);border-radius:14px;background:var(--surface);
-  box-shadow:0 5px 16px rgba(48,46,42,.035);
+  align-self:start;
+  margin:0 0 30px;
+  padding:0;
+  border:0;
+  border-top:2px solid var(--ledger-ink);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
 }
+#notesSection{grid-column:1;padding-right:28px;border-right:1px solid var(--ledger-rule-strong)}
+#journalSection{grid-column:2}
 #notesSection .section-rule,#journalSection .section-rule{
-  margin:0 -14px 5px;padding:13px 14px 9px;border-bottom:1px solid var(--panel-border);
+  margin:0;
+  min-height:40px;
+  padding:9px 0 7px;
+  border:0;
+  border-bottom:1px solid var(--ledger-rule-strong);
+  font:800 11px/1.2 var(--ledger-mono);
+  letter-spacing:.11em;
 }
-.memo-list{margin-left:0}
-.memo-card{margin:0;padding:12px 8px 12px 17px;border-bottom:1px solid var(--rule);border-radius:7px;font-family:inherit}
-.memo-card:last-child{border-bottom:0}
-.memo-card:hover{background:var(--surface-muted)}
-.memo-card::before{top:19px}
+.memo-list{margin:0}
+.memo-card{
+  position:relative;
+  margin:0;
+  padding:13px 8px 13px 22px;
+  border:0;
+  border-bottom:1px solid var(--ledger-rule);
+  border-radius:0!important;
+  background:transparent;
+  font:500 15px/1.5 var(--ledger-serif)!important;
+  color:var(--ledger-ink);
+}
+.memo-card::before{
+  left:3px;top:19px;
+  width:8px;height:8px;
+  border-radius:0;
+  background:var(--ledger-red);
+  transform:rotate(45deg);
+}
+.memo-card:hover{background:var(--ledger-note-wash)}
+.journal-section{margin-top:0}
+.journal-item,.journal-entry{border-color:var(--ledger-rule)!important}
+.journal-body{font-family:var(--ledger-serif)!important}
+.journal-time{font-family:var(--ledger-mono)!important;color:var(--ledger-ink-2)!important}
+.journal-add{border-radius:0!important;font-family:var(--ledger-mono)!important}
 
+/* ---------- Archive: visually recedes into the register ---------- */
 .done-section{
-  margin:0;padding:11px 14px;border:1px dashed var(--panel-border);border-radius:12px;
-  background:color-mix(in srgb,var(--surface-muted) 58%,transparent);
+  grid-column:1 / -1;
+  margin:5px 0 0;
+  padding:10px 0 0;
+  border:0;
+  border-top:1px dashed var(--ledger-rule-strong);
+  border-radius:0;
+  background:transparent;
 }
-.done-section summary{min-height:28px;align-items:center}
-.done-list{margin-left:0}
+.done-section summary{
+  min-height:34px;
+  align-items:center;
+  font:700 10px/1.3 var(--ledger-mono);
+  letter-spacing:.11em;
+  color:var(--ledger-ink-2);
+}
+.done-list{margin:0;opacity:.62}
 
-/* Empty states should look intentional, not unfinished. */
-.empty-line{min-height:64px;display:flex;align-items:center;padding:14px 4px;color:var(--ink-soft)}
+/* ---------- Empty/error/status states remain meaningful ---------- */
+.empty-line{
+  min-height:62px;
+  display:flex;
+  align-items:center;
+  padding:12px 0;
+  border-bottom:1px solid var(--ledger-rule);
+  font:italic 13px/1.45 var(--ledger-serif);
+  color:var(--ledger-ink-2);
+}
 .empty-state{
-  max-width:620px;margin:50px auto 0;padding:52px 28px;
-  border:1px dashed var(--panel-border);border-radius:18px;background:var(--surface);
+  max-width:640px;
+  margin:58px 0 0 36px;
+  padding:30px 0 26px 28px;
+  text-align:left;
+  border:0;
+  border-left:4px solid var(--ledger-red);
+  border-radius:0;
+  background:transparent;
 }
-.empty-number{color:color-mix(in srgb,var(--verm) 28%,var(--paper))}
-
-/* Sync status is an inline status strip, visually separate from project navigation. */
+.empty-number{font-family:var(--ledger-serif)!important;color:var(--ledger-rule-strong);font-size:72px}
+.empty-state h2{font-family:var(--ledger-serif)!important;font-size:30px}
 .sync-nudge{
-  margin:14px 32px 0;border:1px solid color-mix(in srgb,var(--verm) 38%,var(--panel-border));
-  border-radius:10px;background:var(--focus-wash);
+  margin:14px 40px 0 74px;
+  padding:10px 12px;
+  border:0;
+  border-left:3px solid var(--ledger-red);
+  border-radius:0;
+  background:var(--ledger-active-wash);
 }
 
-/* Navigation becomes a compact floating tool dock. */
+/* ---------- Controls: conventional behavior, product-specific expression ---------- */
+.paper-button,.field input,.field textarea,.status-actions button,.segmented{
+  border-radius:1px!important;
+}
+.paper-button{
+  box-shadow:none!important;
+  border-color:var(--ledger-rule-strong);
+  background:var(--ledger-paper-deep);
+}
+.paper-button:hover{transform:none;background:color-mix(in srgb,var(--ledger-paper-deep) 75%,var(--ledger-ink) 5%)}
+.paper-button.primary{background:var(--ledger-red);border-color:var(--ledger-red-dark);color:#fff}
+.segmented button{border-radius:0!important}
+.field>span,.roadmap-field-label label{font-family:var(--ledger-mono)!important;letter-spacing:.035em}
+.field input,.field textarea{background:color-mix(in srgb,var(--ledger-paper) 82%,white 18%)!important}
+html[data-theme="dark"] .field input,html[data-theme="dark"] .field textarea{background:#1c1a17!important}
+
+/* ---------- Tool tray: a register tool strip, not floating glass ---------- */
 .bottom-ruler{
-  width:min(600px,calc(100% - 40px));height:60px;bottom:16px;
-  border:1px solid rgba(255,255,255,.10);border-top:1px solid rgba(255,255,255,.10);
-  border-radius:18px;overflow:hidden;background:rgba(35,34,31,.96)!important;
-  box-shadow:0 14px 35px rgba(25,22,19,.24);backdrop-filter:blur(14px);
+  left:50%;right:auto;bottom:0;
+  transform:translateX(-50%);
+  width:min(760px,100%);
+  height:58px;
+  padding:0;
+  grid-template-columns:1fr 1.25fr 1fr 1fr;
+  border:1px solid #11100e;
+  border-bottom:0;
+  border-top:4px solid var(--ledger-red);
+  border-radius:0!important;
+  overflow:hidden;
+  background:#24221e!important;
+  box-shadow:0 -8px 24px rgba(20,18,15,.15);
+  backdrop-filter:none;
 }
-.bottom-ruler button{position:relative;min-width:0;font-weight:650;opacity:.82}
-.bottom-ruler button:hover{opacity:1;background:rgba(255,255,255,.055)}
-.bottom-ruler .capture-nav{margin:7px;border-radius:11px;background:var(--verm)!important;color:#fff!important;opacity:1}
-.bottom-ruler .capture-nav .nav-mark{color:#fff}
+.bottom-ruler button{
+  min-width:0;
+  flex-direction:row;
+  gap:7px;
+  border-right:1px solid #4a4640;
+  font:650 10px/1 var(--ledger-mono);
+  letter-spacing:.035em;
+  opacity:.86;
+}
+.bottom-ruler button:last-child{border-right:0}
+.bottom-ruler button:hover{opacity:1;background:#302d28}
+.bottom-ruler .nav-mark{font-size:16px}
+.bottom-ruler .capture-nav{
+  margin:0;
+  border-radius:0!important;
+  background:var(--ledger-red)!important;
+  color:#fff!important;
+  opacity:1;
+}
+.bottom-ruler .capture-nav:hover{background:var(--ledger-red-dark)!important}
+.bottom-ruler .capture-nav .nav-mark{color:#fff;font-size:20px}
 
-/* Sheets feel like part of the same component system. */
-.sheet{border-color:var(--panel-border);background:var(--paper)!important;box-shadow:0 -18px 50px rgba(31,28,24,.26)}
-.sheet-head{border-bottom-color:var(--verm)}
-.paper-button{transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
-.paper-button:hover{transform:translateY(-1px)}
-.paper-button.primary:hover{box-shadow:3px 4px 0 var(--verm-dark)}
+/* ---------- Sheets: bounded tasks use one strong modal grammar ---------- */
+.sheet{
+  border:1px solid var(--ledger-ink);
+  border-bottom:0;
+  border-radius:8px 8px 0 0!important;
+  background:var(--ledger-paper)!important;
+  box-shadow:0 -18px 48px rgba(28,24,19,.24);
+}
+.sheet-handle{background:var(--ledger-red)}
+.sheet-head{
+  border-radius:7px 7px 0 0!important;
+  border-bottom:4px solid var(--ledger-red)!important;
+}
+.sheet-head h2{font-family:var(--ledger-serif)!important;font-weight:600}
+.sheet-label{font-family:var(--ledger-mono)!important}
+.sheet-close{border-radius:1px!important}
+
+/* ---------- Dark mode needs its own surface relationships ---------- */
+html[data-theme="dark"] .desk{background:var(--ledger-paper)}
+html[data-theme="dark"] .masthead{background:linear-gradient(90deg,var(--ledger-red) 0 5px,transparent 5px),var(--ledger-paper)}
+html[data-theme="dark"] .project-strip-wrap{background:var(--ledger-paper-deep)!important}
+html[data-theme="dark"] .project-tab.active{background:var(--ledger-paper)!important;color:var(--ledger-ink)!important}
+html[data-theme="dark"] .paper{background:linear-gradient(90deg,transparent 0 35px,rgba(208,110,96,.16) 35px 36px,transparent 36px),repeating-linear-gradient(0deg,transparent 0 35px,rgba(141,168,177,.055) 35px 36px),var(--ledger-paper)}
+html[data-theme="dark"] .entry:hover{background:rgba(255,255,255,.025)}
+html[data-theme="dark"] .ledger-register-now .entry:hover{background:var(--ledger-active-wash)}
+html[data-theme="dark"] .ledger-register-open .entry:hover{background:var(--ledger-open-wash)}
 
 @media(min-width:720px){
-  body{padding:24px 24px 96px}
-  .desk{min-height:calc(100vh - 48px);border:1px solid var(--panel-border);box-shadow:0 24px 70px rgba(48,46,42,.16)}
-  .masthead,.project-strip-wrap{padding-left:42px;padding-right:42px}
-  .masthead::after{left:42px;right:42px}
-  .project-strip-wrap{padding-right:82px}
-  .paper{padding-left:42px;padding-right:42px}
-  .project-heading,.section-rule,.entry-list,.memo-list,.done-section,.roadmap-summary{margin-left:0}
+  body{padding:22px 22px 78px}
+  .desk{min-height:calc(100vh - 44px);border:1px solid var(--ledger-rule-strong)}
+  .sheet{bottom:0}
+}
+
+@media(max-width:900px){
+  .project-heading{grid-template-columns:78px minmax(0,1fr) 38px}
+  .ledger-project-actions{grid-column:2 / 4;justify-self:start;margin-top:-7px}
+  .ledger-folio-block{grid-row:1 / 3}
 }
 
 @media(max-width:719px){
-  .masthead{padding:22px 18px 17px}
-  .masthead::after{left:18px;right:18px}
-  h1{font-size:36px}
-  .project-strip-wrap{padding:9px 58px 10px 18px}
-  .index-add{right:15px;bottom:10px}
-  .paper{padding:20px 15px 98px;background:var(--paper)}
+  body{padding-bottom:68px}
+  .desk{box-shadow:none}
+  .masthead{min-height:108px;padding:22px 18px 18px;background:linear-gradient(90deg,var(--ledger-red) 0 4px,transparent 4px),var(--ledger-paper)}
+  .masthead::after{left:18px;right:18px;height:3px}
+  h1{font-size:40px}
+  .ledger-registry-line{font-size:8px;max-width:260px}
+  .date-block{display:none}
+  .project-strip-wrap{padding:10px 58px 0 18px}
+  .index-add{right:14px;height:40px;width:38px}
+  .project-tab{min-height:36px;padding:8px 11px 7px}
+  .project-tab.active{min-height:40px}
+  .paper{padding:25px 18px 92px 42px;background:linear-gradient(90deg,transparent 0 22px,rgba(163,75,64,.18) 22px 23px,transparent 23px),repeating-linear-gradient(0deg,transparent 0 35px,rgba(88,111,120,.065) 35px 36px),var(--ledger-paper)}
   #projectView:not([hidden]){display:grid;grid-template-columns:1fr}
-  .project-heading,#roadmapSummary,#projectView > .section-rule:has(+ #activeItems),#activeItems,#projectView > .section-rule:has(+ #openItems),#openItems,#notesSection,#journalSection,#doneSection{grid-column:1;grid-row:auto}
-  .project-heading{margin-bottom:16px;padding:18px 17px;align-items:flex-start}
-  .project-heading h2{font-size:29px}
-  .quiet-button{padding:0 11px}
-  .quiet-button::after{content:"Options"}
-  #roadmapSummary{margin-bottom:16px}
-  #activeItems,#openItems{margin-bottom:16px}
-  #notesSection,#journalSection{margin-bottom:16px}
-  .sync-nudge{margin:10px 15px 0}
-  .bottom-ruler{left:10px;right:10px;width:auto;bottom:8px;transform:none;height:58px;border-radius:16px}
+  .project-heading{grid-column:1;grid-template-columns:60px minmax(0,1fr) 34px;gap:12px;margin-bottom:23px;padding-bottom:18px}
+  .ledger-folio-block{min-height:72px;padding-right:8px}
+  #ledgerFolioNumber{font-size:30px}
+  .project-heading h2{font-size:31px}
+  .ledger-project-meta{flex-wrap:wrap;gap:6px;margin-top:6px}
+  .ledger-project-meta span + span::before{margin-right:6px}
+  .ledger-project-actions{grid-column:1 / -1;margin-top:1px;width:100%;overflow-x:auto}
+  .ledger-action{flex:1 0 auto}
+  .quiet-button{width:34px;height:34px}
+  #roadmapSummary,.ledger-register-now,.ledger-register-open,#notesSection,#journalSection,.done-section{grid-column:1}
+  .ledger-register-now,#notesSection{padding-right:0;border-right:0}
+  .ledger-register-open{margin-top:0}
+  .roadmap-row{grid-template-columns:1fr;gap:4px}
+  #notesSection,#journalSection{margin-bottom:26px}
+  .sync-nudge{margin:10px 18px 0 42px}
+  .bottom-ruler{left:0;right:0;width:100%;transform:none;height:62px}
+  .bottom-ruler button{flex-direction:column;gap:2px;font-size:9px}
+  .bottom-ruler .nav-mark{font-size:17px}
+  .sheet{border-radius:8px 8px 0 0!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .entry,.paper-button,.ledger-action{transition:none}
 }
