@@ -40,6 +40,11 @@
     catch(e){return null}
   }
 
+  function setText(id,value){
+    const node=document.getElementById(id);
+    if(node&&node.textContent!==value)node.textContent=value;
+  }
+
   function wrapRegister(rule, list, className){
     if(!rule||!list||rule.parentElement?.classList.contains('ledger-register'))return;
     const section=document.createElement('section');
@@ -108,19 +113,15 @@
     const state=readState();
     const projects=Array.isArray(state?.projects)?state.projects:[];
     const activeId=state?.activeProject;
-    const index=Math.max(0,projects.findIndex(project=>project?.id===activeId));
-    const project=projects[index]||projects[0]||null;
-    const number=document.getElementById('ledgerFolioNumber');
-    const total=document.getElementById('ledgerFolioTotal');
-    const mode=document.getElementById('ledgerRegisterMode');
-    const updated=document.getElementById('ledgerUpdatedAt');
-    if(number)number.textContent=String(index+1).padStart(2,'0');
-    if(total)total.textContent=`/${String(Math.max(projects.length,1)).padStart(2,'0')}`;
-    if(mode)mode.textContent=project?.mode==='ROADMAP'?'ROADMAP REGISTER':'WORK REGISTER';
-    if(updated){
-      const date=project?.workedAt?new Date(project.workedAt):null;
-      updated.textContent=date&&!Number.isNaN(date.getTime())?`UPDATED ${date.toLocaleDateString(undefined,{month:'short',day:'2-digit'}).toUpperCase()}`:'LOCAL RECORD';
-    }
+    const foundIndex=projects.findIndex(project=>project?.id===activeId);
+    const index=foundIndex>=0?foundIndex:0;
+    const project=projects[index]||null;
+    setText('ledgerFolioNumber',String(index+1).padStart(2,'0'));
+    setText('ledgerFolioTotal',`/${String(Math.max(projects.length,1)).padStart(2,'0')}`);
+    setText('ledgerRegisterMode',project?.mode==='ROADMAP'?'ROADMAP REGISTER':'WORK REGISTER');
+    const date=project?.workedAt?new Date(project.workedAt):null;
+    const updated=date&&!Number.isNaN(date.getTime())?`UPDATED ${date.toLocaleDateString(undefined,{month:'short',day:'2-digit'}).toUpperCase()}`:'LOCAL RECORD';
+    setText('ledgerUpdatedAt',updated);
   }
 
   function queueEnhance(){
