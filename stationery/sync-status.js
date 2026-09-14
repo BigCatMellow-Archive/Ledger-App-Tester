@@ -10,6 +10,7 @@
   let storageCorrupt=false;
   let corruptRaw='';
   let activeDialog=null;
+  let lastFocusedElement=null;
   let lastNonDialogFocus=null;
   let enhanceQueued=false;
   const dialogOpeners=new WeakMap();
@@ -224,7 +225,12 @@
   function activateDialog(dialog){
     if(!dialog||dialog===activeDialog)return;
     if(!dialogOpeners.has(dialog)){
-      const opener=lastNonDialogFocus&&lastNonDialogFocus.isConnected?lastNonDialogFocus:null;
+      const current=document.activeElement;
+      const opener=current instanceof HTMLElement&&current!==document.body&&!dialog.contains(current)&&current.isConnected
+        ? current
+        : (lastFocusedElement instanceof HTMLElement&&!dialog.contains(lastFocusedElement)&&lastFocusedElement.isConnected
+          ? lastFocusedElement
+          : (lastNonDialogFocus&&lastNonDialogFocus.isConnected?lastNonDialogFocus:null));
       dialogOpeners.set(dialog,opener);
     }
     activeDialog=dialog;
@@ -245,7 +251,13 @@
     const dialogs=visibleDialogs();
     const next=dialogs.at(-1)||null;
     if(next){
+      const closed=activeDialog&&activeDialog!==next&&!isVisibleDialog(activeDialog)?activeDialog:null;
+      const opener=closed?dialogOpeners.get(closed):null;
+      if(closed)activeDialog=null;
       activateDialog(next);
+      if(opener&&opener.isConnected&&!opener.inert&&next.contains(opener)){
+        requestAnimationFrame(()=>opener.focus({preventScroll:true}));
+      }
       return;
     }
     if(!activeDialog)return;
@@ -374,6 +386,7 @@
   injectHardeningStyles();
 
   document.addEventListener('focusin',event=>{
+    lastFocusedElement=event.target;
     if(!event.target?.closest?.('[role="dialog"][aria-modal="true"]'))lastNonDialogFocus=event.target;
   },true);
 
