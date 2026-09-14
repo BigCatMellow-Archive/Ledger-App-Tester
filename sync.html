@@ -40,7 +40,7 @@ main{max-width:760px;margin:0 auto;padding:24px 16px 64px}.back{display:inline-b
   </div>
 </div>
 
-<div id="status" class="status">Not connected yet.</div>
+<div id="status" class="status" role="status" aria-live="polite" aria-atomic="true">Not connected yet.</div>
 
 <div class="card">
   <strong>Automatic sync behavior</strong>
@@ -83,6 +83,7 @@ function setStatus(message,kind=''){
 function setBusy(busy){
   document.getElementById('connect').disabled=busy;
   document.getElementById('sync').disabled=busy;
+  document.getElementById('status').setAttribute('aria-busy',busy?'true':'false');
 }
 function b64(bytes){let s='';const a=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes);for(let i=0;i<a.length;i+=0x8000)s+=String.fromCharCode(...a.subarray(i,i+0x8000));return btoa(s)}
 async function sha256Text(text){const d=await crypto.subtle.digest('SHA-256',enc.encode(text));return b64(d)}
@@ -172,7 +173,7 @@ async function performSync(force=false){
   const plain=localStorage.getItem(STORAGE_KEY);
   if(!plain){setStatus('No Ledger data was found in this browser. Open Ledger and create or edit a project first.','bad');return}
   let state;
-  try{state=JSON.parse(plain)}catch(e){setStatus('Ledger browser data is not valid JSON. Export a Markdown backup before continuing.','bad');return}
+  try{state=JSON.parse(plain)}catch(e){setStatus('Ledger browser data could not be read. Return to Ledger to download the raw recovery copy before resetting anything.','bad');return}
   const hash=await sha256Text(plain);
   if(!force&&hash===lastPlainHash){
     saveSyncStatus(c,hash);
