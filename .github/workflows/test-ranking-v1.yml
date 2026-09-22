@@ -1,0 +1,25 @@
+name: Test Ranking V1
+
+on:
+  push:
+    paths:
+      - 'experiments/ranking-v1/**'
+  pull_request:
+    paths:
+      - 'experiments/ranking-v1/**'
+
+jobs:
+  ranking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check ranking JavaScript syntax
+        run: |
+          node --check experiments/ranking-v1/ranking.js
+          node --check experiments/ranking-v1/fixtures.js
+          node --check experiments/ranking-v1/ranking.test.js
+      - name: Run ranking experiment
+        run: node experiments/ranking-v1/ranking.test.js
