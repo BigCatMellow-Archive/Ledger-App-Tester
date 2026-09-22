@@ -1,6 +1,7 @@
 'use strict';
 
 const STORAGE_KEY = 'signal-pull-v1-state';
+const PRE_LEDGER_IMPORT_BACKUP_KEY = 'signal-pull-v1-pre-ledger-import-backup';
 const DAY = 86400000;
 const ANCHOR = new Date('2026-09-22T13:30:00.000Z');
 const $ = id => document.getElementById(id);
@@ -118,6 +119,28 @@ function renderReliability(){
     loadError?'<div class="system-warning">'+esc(loadError)+'</div>':''
   ].join('');
 }
+function renderLedgerImportPreview(){
+  const box=$('ledgerImportPreview');
+  if(!box)return;
+  if(!pendingLedgerImport){box.hidden=true;box.innerHTML='';return}
+  const r=pendingLedgerImport.report;
+  const warnings=(r.warnings||[]).slice(0,8);
+  box.hidden=false;
+  box.innerHTML=[
+    '<span class="kicker">LEDGER IMPORT PREVIEW</span>',
+    '<h2>Convert incumbent data without changing the source</h2>',
+    '<div class="import-stats">',
+      '<div><strong>'+esc(String(r.sourceItems))+'</strong><span>source items</span></div>',
+      '<div><strong>'+esc(String(r.convertedCommitments))+'</strong><span>commitments</span></div>',
+      '<div><strong>'+esc(String(r.excludedNotes))+'</strong><span>notes kept as provenance</span></div>',
+      '<div><strong>'+esc(String(r.manualReviewRequired))+'</strong><span>manual wake reviews</span></div>',
+      '<div><strong>'+esc(String(r.sourceActiveItems||0))+'</strong><span>source active items</span></div>',
+    '</div>',
+    warnings.length?'<div class="import-warnings"><strong>Conversion notes</strong><ul>'+warnings.map(w=>'<li>'+esc(w.message)+'</li>').join('')+'</ul></div>':'',
+    '<p>Applying this preview replaces only the current Signal + Pull tester state. The Ledger file you selected and the preserved V4 branch are not modified. The current Signal + Pull state is saved to a separate local pre-import backup key first.</p>',
+    '<div class="reliability-actions"><button class="primary" type="button" data-apply-ledger-import>Apply converted snapshot</button><button type="button" data-cancel-ledger-import>Cancel preview</button></div>'
+  ].join('');
+}
 function renderRecovery(){
   document.querySelectorAll('.view').forEach(v=>v.hidden=true);
   $('recoveryView').hidden=false;
@@ -129,7 +152,7 @@ function renderRecovery(){
 function renderAll(){
   if(!state){renderRecovery();return}
   document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
-  renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();
+  renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();renderLedgerImportPreview();
 }
 function openInbox(){const search=$('holdingsSearch');if(search)search.value='INBOX';renderHoldings('INBOX');showView('holdings')}
 function showView(name){
