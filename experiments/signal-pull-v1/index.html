@@ -21,6 +21,7 @@
         <button class="capture-button" type="button" data-view="capture">Capture</button>
       </nav>
     </header>
+    <div id="recoveryBanner" class="recovery-banner" hidden></div>
 
     <main>
       <section id="signalsView" class="view" aria-labelledby="signalsTitle">
@@ -55,6 +56,8 @@
           <p>Everything remains inspectable. Quiet work must explain why it is quiet and how it will return.</p>
         </div>
         <label class="search-label" for="holdingsSearch">Search holdings</label>
+        <div class="reliability-tools"><button type="button" data-export-backup>Export backup</button><button type="button" data-restore-backup>Restore backup</button><span id="backupStatus">External backup is manual in this prototype.</span></div>
+        <input id="restoreInput" type="file" accept="application/json,.json" hidden>
         <input id="holdingsSearch" class="search" type="search" placeholder="Search title, scope, state, wake rule">
         <div id="holdingsWarning" class="system-warning" hidden></div>
         <div id="holdingsList" class="holdings-list"></div>
@@ -76,6 +79,7 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   </div>
+  <script src="reliability-core.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
