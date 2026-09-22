@@ -9,7 +9,7 @@
 
 ## Parent outcome
 
-Create and validate an organization model for Ledger that helps one person manage high-volume multi-project work without requiring constant mental tracking or repeated context reconstruction.
+Create and validate the best evidence-supported personal organization system for high-volume multi-commitment work without requiring constant mental tracking or repeated context reconstruction. Ledger is the incumbent reference and test harness, not the required product shape.
 
 ## Definition of DONE
 
@@ -20,7 +20,8 @@ The organization project is ready for production consideration only when all of 
 - waiting/parked work has inspectable resurfacing/disposition behavior;
 - active work can be paused with a usable return point;
 - a cross-project attention surface can identify seeded attention-worthy work in high-volume fixtures without requiring project-by-project inspection;
-- the project-local Chronicle remains usable and is not duplicated by the global layer;
+- the chosen architecture supports both global orientation and deep-work continuity without requiring preservation of Chronicle, projects, tasks, or any incumbent composition;
+- materially different clean-sheet architectures are compared before one product shape is selected;
 - “why now” is explainable for automatically surfaced work;
 - material-delta behavior is separated from exhaustive history;
 - save/recovery/resurfacing failure states are visible in the tested prototype;
@@ -36,7 +37,7 @@ Run the fixed evaluation fixtures below against the tester prototype using seede
 - stale/wrong return points;
 - unexplained routing;
 - recovery/data-loss risk;
-- Chronicle regression;
+- loss of useful continuity capabilities from the incumbent;
 - accessibility/keyboard behavior;
 - mobile representation.
 
@@ -48,8 +49,8 @@ Run the fixed evaluation fixtures below against the tester prototype using seede
 - formal attention-state model;
 - deterministic resurfacing model;
 - synthetic fixture dataset;
-- tester-only Control Tower prototype;
-- integration with existing V4 Chronicle;
+- clean-sheet architecture search with materially different concepts;
+- tester-only prototypes, which may reuse, transform, or replace V4 structures;
 - evaluation and challenge;
 - storage/recovery truth needed to support the prototype honestly.
 
@@ -61,13 +62,13 @@ Run the fixed evaluation fixtures below against the tester prototype using seede
 - email/calendar integrations;
 - automatic external side effects;
 - notifications outside the tester;
-- replacing Chronicle;
-- a full project-management suite;
+- preserving Chronicle, project/task hierarchy, or any existing screen merely because it already exists;
+- a full organization-wide/team resource-planning suite;
 - organization-wide/team resource planning.
 
 ### Effort reconsideration trigger
 
-Reconsider the model before adding complexity if a deterministic state/trigger system cannot outperform a simple project list + Chronicle on the fixed fixtures, or if maintaining resurfacing metadata creates more user work than it removes.
+Reconsider the model before adding complexity if a deterministic state/trigger system cannot outperform the simplest incumbent baseline on the fixed fixtures, or if maintaining resurfacing metadata creates more user work than it removes.
 
 ## Current facts checked
 
@@ -82,7 +83,7 @@ Reconsider the model before adding complexity if a deterministic state/trigger s
 
 ## Working hypotheses
 
-- H1: global attention management and local project continuity are distinct product jobs.
+- H1: global orientation and deep-work continuity are distinct product jobs, but they do not imply separate screens or the incumbent project model.
 - H2: deterministic attention/resurfacing rules will provide most of the value before AI ranking is needed.
 - H3: separating OPEN population from bounded NOW population will reduce perceived overload.
 - H4: WAITING becomes safer when every quiet item has an inspectable wake/review contract.
@@ -248,15 +249,17 @@ Pass:
 - it does not fill the screen with arbitrary work merely to avoid emptiness;
 - user can still navigate to all projects/commitments.
 
-### ORG-F13 — Chronicle preservation
+### ORG-F13 — Deep-work continuity independent of architecture
 
 Sequence:
-- enter a project from Control Tower.
+- select a seeded commitment from the system-level orientation surface;
+- work deeply enough to establish context;
+- leave and return through the system-level surface.
 
 Pass:
-- project opens into a coherent Chronicle/checkpoint/Next experience;
-- Control Tower does not duplicate or replace the project's material chronology;
-- returning globally preserves project state.
+- the user recovers a coherent working context and concrete continuation path;
+- global/system orientation does not require replaying exhaustive history;
+- the test can pass whether the chosen architecture uses projects, Chronicle, queues, temporal horizons, objectives, or another justified structure.
 
 ### ORG-F14 — Mobile re-entry
 
@@ -318,24 +321,38 @@ Goal: test the model without committing to visual design.
 Checkpoint:
 - **CONTINUE** only if the deterministic model can correctly route seeded scenarios without hidden state or manual duplication.
 
-## Phase 2 — Control Tower prototype
+## Phase 2 — Clean-sheet architecture search
 
-Goal: prove global orientation while preserving Chronicle.
+Goal: discover the product shape rather than inherit it.
 
-- [ ] Create a tester-only global Control Tower.
-- [ ] Keep Chronicle as the project-local continuation surface.
+- [ ] Generate materially different architectures from the same proven model/capabilities.
+- [ ] Include at least one concept that does **not** use project-first navigation.
+- [ ] Include at least one concept that does **not** use Chronicle/timeline as the deep-work owner.
+- [ ] Include at least one concept where attention/trigger state is the primary navigation structure.
+- [ ] Compare each concept against the incumbent as a baseline, not as authority.
+- [ ] Reject concepts that are merely Ledger with moved panels or renamed sections.
+- [ ] Select promising directions only after fixture-based comparison and independent challenge.
+
+Checkpoint:
+- choose architecture based on measured/reproduced organization performance and cognitive cost, not resemblance to existing Ledger.
+
+## Phase 3 — Prototype the selected architecture
+
+Goal: prove the selected clean-sheet structure end to end.
+
+- [ ] Build the smallest tester-only implementation needed to exercise the fixtures.
 - [ ] Add explicit “why now.”
-- [ ] Add inspectable Waiting/Parked resurfacing state.
-- [ ] Add cheap pause/return-point interaction.
-- [ ] Add global material-delta projection.
+- [ ] Add inspectable waiting/quiet-work resurfacing.
+- [ ] Add cheap pause/return behavior in whatever representation the selected concept uses.
+- [ ] Add material-delta behavior without raw audit noise.
 - [ ] Avoid charts/metrics unless they solve a fixture.
 - [ ] Verify desktop and mobile repeated paths.
 - [ ] Run AI Design Bible visual/interaction/accessibility checks on rendered output.
 
 Checkpoint:
-- compare Control Tower + Chronicle against Chronicle-only baseline on the fixed fixtures.
+- compare the selected prototype against the incumbent baseline on the fixed fixtures.
 
-## Phase 3 — Reliability hardening
+## Phase 4 — Reliability hardening
 
 Goal: make stronger cognitive offloading safe.
 
@@ -349,7 +366,7 @@ Goal: make stronger cognitive offloading safe.
 Checkpoint:
 - do not claim “safe to forget” until recovery and resurfacing failures are inspectable.
 
-## Phase 4 — Ranking experiment
+## Phase 5 — Ranking experiment
 
 Only after deterministic routing passes.
 
@@ -367,7 +384,7 @@ D. AI ranking, only if there is a remaining measurable gap.
 - [ ] Compare correction/override cost.
 - [ ] Reject AI ranking if added complexity does not produce a material improvement.
 
-## Phase 5 — Independent review and promotion decision
+## Phase 6 — Independent review and promotion decision
 
 - [ ] Fresh reviewer receives research, model, fixtures, and working tester.
 - [ ] Reviewer attempts to falsify:
@@ -394,13 +411,13 @@ A reviewer should specifically ask:
 4. Does the Control Tower surface too much and recreate overload?
 5. Does deterministic routing respect human judgment?
 6. Does the current storage model justify the amount of trust the UI invites?
-7. Are global attention and project chronology still cleanly separated?
+7. Did the selected architecture solve global orientation and deep-work continuity cleanly without preserving an incumbent structure by habit?
 8. Does the system still work when the user ignores it for a week?
 9. Can the user understand the state after a reload or failure?
 10. Is a simpler model sufficient?
 
 ## Current project decision
 
-Proceed to **Phase 1 — Data model experiment** before changing the polished Ledger UI.
+Proceed to **Phase 1 — Data model experiment** without treating the current Ledger UI, project/task schema, Chronicle, or proposed Control Tower as the destination.
 
-The next useful artifact is a synthetic fixture dataset plus a deterministic attention/resurfacing selector. This is intentionally chosen before visual design so the product model must prove itself independently of aesthetics.
+After the model proves itself, run a genuine clean-sheet architecture search before polished implementation. The next useful artifact remains a synthetic fixture dataset plus a deterministic attention/resurfacing selector because that lets the underlying organization mechanics prove themselves independently of any familiar interface.
