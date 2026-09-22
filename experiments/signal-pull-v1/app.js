@@ -26,9 +26,37 @@ function seedState() {
   while(commitments.length<100){const i=commitments.length+1;commitments.push(seedCommitment(`routine-${i}`,{title:`Routine commitment ${i}`,scope:['School','Home','Projects','Personal'][i%4],updatedAt:atDays(-.5),lastSeenAt:atDays(-.5),materialChangedAt:atDays(-.5)}));}
   return {commitments,focusId:'active-return-point',createdAt:ANCHOR.toISOString(),localSave:'saved',externalSave:'not configured'};
 }
-function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):seedState()}catch(e){return seedState()}}
+let corruptRaw='';
+let loadError='';
+function loadState(){
+  corruptRaw='';loadError='';
+  let raw='';
+  try{raw=localStorage.getItem(STORAGE_KEY)||''}
+  catch(error){
+    const fallback=SignalStateIO.normalizeState(seedState());
+    fallback.localSave='memory only';
+    loadError='Browser storage could not be read: '+error.message;
+    return fallback;
+  }
+  if(!raw)return SignalStateIO.normalizeState(seedState());
+  const parsed=SignalStateIO.parseSnapshot(raw);
+  if(!parsed.ok){
+    corruptRaw=raw;
+    loadError=(parsed.error+' '+(parsed.details||'')).trim();
+    return null;
+  }
+  parsed.state.localSave='saved';
+  return parsed.state;
+}
 let state=loadState();
-function persist(message=''){state.localSave='saved';try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){state.localSave='memory only'}renderAll();if(message)toast(message)}
+function persist(message=''){
+  if(!state)return;
+  state.localSave='saved';
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Browser storage write failed: '+error.message}
+  renderAll();
+  if(message)toast(message);
+}
 function byId(id){return state.commitments.find(c=>c.id===id)}
 function dependencyState(c){if(!c.waitingOn?.length)return {waiting:false,released:false};const deps=c.waitingOn.map(byId);return {waiting:deps.some(d=>!d||d.workState!=='DONE'),released:deps.length>0&&deps.every(d=>d?.workState==='DONE')}}
 function returnStale(c){return !!(c.returnPoint?.updatedAt&&c.materialChangedAt&&toTime(c.materialChangedAt)>toTime(c.returnPoint.updatedAt))}
@@ -63,8 +91,43 @@ function decisionHtml(c,reasons){if(reasons.some(r=>r.includes('review')))return
 function renderFocus(){const c=byId(state.focusId);if(!c||c.workState==='DONE'){$('focusContent').innerHTML=`<div class="focus-shell"><div class="focus-status"><span>FOCUS</span><span>NO CURRENT PULL</span></div><h1 id="focusTitle" class="focus-title" tabindex="-1">Nothing is in focus.</h1><p>Select Pull or Resume from a signal, or return to Signals.</p><div class="focus-actions"><button class="primary" type="button" data-view="signals">Open signals</button></div></div>`;return}
  const why=reasons(c);$('focusContent').innerHTML=`<div class="focus-shell"><div class="focus-status"><span>FOCUS · ACTIVE</span><span>${esc(c.scope||'Unscoped')}</span></div><h1 id="focusTitle" class="focus-title" tabindex="-1">${esc(c.title)}</h1><div class="focus-reason">Why this is here: ${esc((why.length?why:['explicit pull']).join(' · '))}</div><div class="return-point"><label for="returnSummary">Where you stopped</label><textarea id="returnSummary" rows="3">${esc(c.returnPoint?.summary||'')}</textarea><label for="returnNext">Next move</label><input id="returnNext" value="${esc(c.returnPoint?.nextAction||c.nextAction||'')}"><label for="returnUnresolved">Unresolved / watch for</label><input id="returnUnresolved" value="${esc(c.returnPoint?.unresolved||'')}"><button type="button" data-save-return="${esc(c.id)}">Save return point</button></div><div class="focus-next">${esc(c.returnPoint?.nextAction||c.nextAction||'Define the next concrete move.')}</div><div class="focus-actions"><button class="primary" type="button" data-done="${esc(c.id)}">Complete</button><button type="button" data-wait="${esc(c.id)}">Pause 2 days</button><button type="button" data-park="${esc(c.id)}">Park 7 days</button><button type="button" data-view="signals">Back to signals</button></div><div class="focus-meta"><div><span>Work state</span><p>${esc(c.workState)}</p></div><div><span>Attention state</span><p>${esc(c.attentionState)}</p></div><div><span>Wake / disposition</span><p>${esc(wakeText(c))}</p></div></div><details><summary>Context and provenance</summary><p>Created ${new Date(c.createdAt).toLocaleDateString()} · last material change ${new Date(c.materialChangedAt).toLocaleDateString()}.</p><p>This experiment keeps exhaustive history behind the working surface rather than treating it as the working surface.</p></details></div>`}
 function renderHoldings(filter=''){const q=filter.trim().toLowerCase();const list=state.commitments.filter(c=>!q||[c.title,c.scope,c.workState,c.attentionState,wakeText(c)].join(' ').toLowerCase().includes(q));const missing=missingDisposition();$('holdingsWarning').hidden=!missing.length;$('holdingsWarning').textContent=missing.length?`${missing.length} unfinished quiet commitments have no wake/disposition path.`:'';$('holdingsList').innerHTML=list.map(c=>`<article class="holding-row"><div><strong>${esc(c.title)}</strong><small>${esc(c.scope||'Unscoped')}</small></div><span class="state-label">${esc(c.workState)} · ${esc(c.attentionState||'AUTO')}</span><div class="wake-rule">${esc(wakeText(c))}</div><div class="holding-actions"><button type="button" data-pull="${esc(c.id)}">Open</button></div></article>`).join('')}
-function renderAll(){renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'')}
-function showView(name){document.querySelectorAll('.view').forEach(v=>v.hidden=true);const el=$(`${name}View`)||$('signalsView');el.hidden=false;window.scrollTo(0,0);const h=el.querySelector('h1');setTimeout(()=>h?.focus({preventScroll:true}),0)}
+function renderReliability(){
+  const missing=missingDisposition();
+  const external=state.externalSave||'not configured';
+  const local=state.localSave||'unknown';
+  const externalRecovery=/not configured/i.test(external)?'No cross-device restore path':'External state recorded';
+  $('reliabilityContent').innerHTML=[
+    '<div class="reliability-grid">',
+    '<section class="reliability-item"><h2>Local browser state</h2><strong>'+esc(local)+'</strong><p>Material changes are written to this browser. A write failure changes this status to memory only.</p></section>',
+    '<section class="reliability-item"><h2>External recovery</h2><strong>'+esc(externalRecovery)+'</strong><p>Current external state: '+esc(external)+'. This prototype does not claim cloud recovery when none is configured.</p></section>',
+    '<section class="reliability-item"><h2>Quiet-work integrity</h2><strong>'+(missing.length?esc(String(missing.length))+' defects':'PASS')+'</strong><p>'+(missing.length?'Unfinished quiet commitments lack a wake/disposition path.':'Every unfinished quiet commitment currently has an inspectable return path.')+'</p></section>',
+    '<section class="reliability-item"><h2>Snapshot format</h2><strong>v'+esc(SignalStateIO.SNAPSHOT_VERSION)+'</strong><p>'+state.commitments.length+' commitments. Import validates structure and duplicate IDs before replacing current state.</p></section>',
+    '</div>',
+    '<div class="reliability-actions"><button class="primary" type="button" data-export-snapshot>Export JSON snapshot</button><button type="button" data-import-snapshot>Import JSON snapshot</button><button type="button" data-reset-fixture>Reset synthetic fixture</button></div>',
+    '<p class="reliability-note">Recovery rule: unreadable local state is preserved and blocks normal operation until the user exports the raw record, imports a known-good snapshot, or explicitly resets the fixture. The system must never silently replace corrupt durable state with a fresh empty/default state.</p>',
+    loadError?'<div class="system-warning">'+esc(loadError)+'</div>':''
+  ].join('');
+}
+function renderRecovery(){
+  document.querySelectorAll('.view').forEach(v=>v.hidden=true);
+  $('recoveryView').hidden=false;
+  $('recoveryError').textContent=loadError||'The local snapshot could not be read safely.';
+  $('systemSummary').textContent='local data needs recovery · normal editing blocked';
+  document.querySelectorAll('.nav button').forEach(b=>b.disabled=true);
+  setTimeout(()=>$('recoveryTitle')?.focus({preventScroll:true}),0);
+}
+function renderAll(){
+  if(!state){renderRecovery();return}
+  document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
+  renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();
+}
+function showView(name){
+  if(!state&&name!=='recovery'){renderRecovery();return}
+  document.querySelectorAll('.view').forEach(v=>v.hidden=true);
+  const el=$(name+'View')||$('signalsView');
+  el.hidden=false;window.scrollTo(0,0);
+  const h=el.querySelector('h1');setTimeout(()=>h?.focus({preventScroll:true}),0);
+}
 function pull(id){const c=byId(id);if(!c)return;if(activeCount()>=3&&c.workState!=='ACTIVE'){toast('Active capacity is full. Resolve or pause current work first.');return}if(dependencyState(c).released)c.waitingOn=[];c.reviewAt=null;c.parkedUntil=null;c.disposition='';c.workState='ACTIVE';c.attentionState='NOW';c.userPinned=true;c.updatedAt=ANCHOR.toISOString();state.focusId=id;persist(`Pulled “${c.title}” into focus.`);showView('focus')}
 function waitTwoDays(id){const c=byId(id);if(!c)return;c.workState='OPEN';c.attentionState='WAITING';c.reviewAt=atDays(2);c.parkedUntil=null;c.userPinned=false;c.disposition='Review in 2 days';c.waitingOn=[];c.updatedAt=ANCHOR.toISOString();if(state.focusId===id)state.focusId='';persist(`Waiting until ${new Date(c.reviewAt).toLocaleDateString()}.`);showView('signals')}
 function parkSevenDays(id){const c=byId(id);if(!c)return;c.workState='OPEN';c.attentionState='PARKED';c.parkedUntil=atDays(7);c.reviewAt=null;c.userPinned=false;c.disposition='Wake in 7 days';c.waitingOn=[];c.updatedAt=ANCHOR.toISOString();if(state.focusId===id)state.focusId='';persist(`Parked until ${new Date(c.parkedUntil).toLocaleDateString()}.`);showView('signals')}
@@ -72,9 +135,57 @@ function complete(id){const c=byId(id);if(!c)return;c.workState='DONE';c.attenti
 function clearSeen(id){const c=byId(id);if(!c)return;c.lastSeenAt=c.materialChangedAt;c.returnPoint=null;c.userPinned=false;c.updatedAt=ANCHOR.toISOString();persist('Marked material change as seen.');showView('signals')}
 function saveReturn(id){const c=byId(id);if(!c)return;c.returnPoint={summary:$('returnSummary').value.trim(),nextAction:$('returnNext').value.trim(),unresolved:$('returnUnresolved').value.trim(),updatedAt:ANCHOR.toISOString()};c.nextAction=c.returnPoint.nextAction;c.updatedAt=ANCHOR.toISOString();persist('Return point saved.');showView('focus')}
 function toast(message){const t=$('toast');t.textContent=message;t.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.hidden=true,3200)}
+function downloadText(filename,text,type='application/json'){
+  const blob=new Blob([text],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function exportSnapshot(){
+  if(!state)return;
+  try{downloadText('signal-pull-v1-snapshot.json',SignalStateIO.serializeSnapshot(state));toast('Snapshot exported.')}
+  catch(error){toast('Export failed: '+error.message)}
+}
+function downloadCorruptBackup(){if(corruptRaw)downloadText('signal-pull-v1-corrupt-raw.txt',corruptRaw,'text/plain')}
+function openImport(){const input=$('snapshotImport');if(input){input.value='';input.click()}}
+async function importSnapshot(file){
+  if(!file)return;
+  const text=await file.text();
+  const parsed=SignalStateIO.parseSnapshot(text);
+  if(!parsed.ok){
+    loadError=(parsed.error+' '+(parsed.details||'')).trim();
+    toast('Import rejected: snapshot is invalid.');
+    if(state)renderReliability();else renderRecovery();
+    return;
+  }
+  state=parsed.state;state.localSave='saved';corruptRaw='';loadError='';
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Imported snapshot is memory only: '+error.message}
+  renderAll();showView('reliability');toast('Snapshot imported and validated.');
+}
+function resetFixture(){
+  state=SignalStateIO.normalizeState(seedState());corruptRaw='';loadError='';
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Reset state is memory only: '+error.message}
+  renderAll();if(state)showView('signals');toast('Synthetic fixture reset.');
+}
 
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.view)return showView(b.dataset.view);if(b.dataset.pull)return pull(b.dataset.pull);if(b.dataset.wait)return waitTwoDays(b.dataset.wait);if(b.dataset.park)return parkSevenDays(b.dataset.park);if(b.dataset.done)return complete(b.dataset.done);if(b.dataset.clear)return clearSeen(b.dataset.clear);if(b.dataset.saveReturn)return saveReturn(b.dataset.saveReturn)});
-$('holdingsSearch').addEventListener('input',e=>renderHoldings(e.target.value));
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.recoveryDownload!==undefined)return downloadCorruptBackup();
+  if(b.dataset.exportSnapshot!==undefined)return exportSnapshot();
+  if(b.dataset.importSnapshot!==undefined)return openImport();
+  if(b.dataset.resetFixture!==undefined)return resetFixture();
+  if(b.dataset.view)return showView(b.dataset.view);
+  if(b.dataset.pull)return pull(b.dataset.pull);
+  if(b.dataset.wait)return waitTwoDays(b.dataset.wait);
+  if(b.dataset.park)return parkSevenDays(b.dataset.park);
+  if(b.dataset.done)return complete(b.dataset.done);
+  if(b.dataset.clear)return clearSeen(b.dataset.clear);
+  if(b.dataset.saveReturn)return saveReturn(b.dataset.saveReturn);
+});
+$('holdingsSearch').addEventListener('input',e=>{if(state)renderHoldings(e.target.value)});
+$('snapshotImport').addEventListener('change',e=>importSnapshot(e.target.files?.[0]));
 $('captureForm').addEventListener('submit',e=>{e.preventDefault();const title=$('captureTitleInput').value.trim();if(!title)return;const c=seedCommitment(uid('capture'),{title,scope:$('captureScopeInput').value.trim()||'Inbox',attentionState:'INBOX',nextAction:$('captureNextInput').value.trim(),createdAt:ANCHOR.toISOString(),updatedAt:ANCHOR.toISOString(),lastSeenAt:ANCHOR.toISOString(),materialChangedAt:ANCHOR.toISOString()});state.commitments.unshift(c);e.target.reset();persist(`Captured “${title}” to Inbox.`);showView('signals')});
 
 renderAll();showView('signals');

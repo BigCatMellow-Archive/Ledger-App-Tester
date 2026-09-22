@@ -1,0 +1,26 @@
+name: Test Signal + Pull reliability
+
+on:
+  push:
+    paths:
+      - 'experiments/signal-pull-v1/**'
+  pull_request:
+    paths:
+      - 'experiments/signal-pull-v1/**'
+
+jobs:
+  reliability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check experiments/signal-pull-v1/app.js
+          node --check experiments/signal-pull-v1/state-io.js
+      - name: Test snapshot IO
+        run: node experiments/signal-pull-v1/state-io.test.js
+      - name: Test corruption and import contract
+        run: node experiments/signal-pull-v1/reliability-contract.test.js
