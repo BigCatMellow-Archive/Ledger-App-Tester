@@ -72,7 +72,9 @@
           <p>Local save, external backup, quiet-work integrity, export/import, and corruption recovery are separate states. This experiment does not imply cloud recovery when none exists.</p>
         </div>
         <div id="reliabilityContent" class="reliability-content"></div>
+        <div id="ledgerImportPreview" class="import-preview" hidden></div>
         <input id="snapshotImport" type="file" accept="application/json,.json" hidden>
+        <input id="ledgerImport" type="file" accept="application/json,.json" hidden>
       </section>
 
       <section id="recoveryView" class="view" hidden aria-labelledby="recoveryTitle">
@@ -107,6 +109,7 @@
   </div>
   <script src="state-io.js"></script>
   <script src="signal-policy.js"></script>
+  <script src="../ledger-import-v1/ledger-import.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
