@@ -256,6 +256,9 @@ document.addEventListener('click',e=>{
   if(b.dataset.recoveryDownload!==undefined)return downloadCorruptBackup();
   if(b.dataset.exportSnapshot!==undefined)return exportSnapshot();
   if(b.dataset.importSnapshot!==undefined)return openImport();
+  if(b.dataset.importLedger!==undefined)return openLedgerImport();
+  if(b.dataset.applyLedgerImport!==undefined)return applyLedgerImport();
+  if(b.dataset.cancelLedgerImport!==undefined)return cancelLedgerImport();
   if(b.dataset.resetFixture!==undefined)return resetFixture();
   if(b.dataset.inboxView!==undefined)return openInbox();
   if(b.dataset.view)return showView(b.dataset.view);
@@ -268,6 +271,7 @@ document.addEventListener('click',e=>{
 });
 $('holdingsSearch').addEventListener('input',e=>{if(state)renderHoldings(e.target.value)});
 $('snapshotImport').addEventListener('change',e=>importSnapshot(e.target.files?.[0]));
+$('ledgerImport').addEventListener('change',e=>previewLedgerImport(e.target.files?.[0]));
 $('captureForm').addEventListener('submit',e=>{e.preventDefault();const title=$('captureTitleInput').value.trim();if(!title)return;const c=seedCommitment(uid('capture'),{title,scope:$('captureScopeInput').value.trim()||'Inbox',attentionState:'INBOX',nextAction:$('captureNextInput').value.trim(),createdAt:ANCHOR.toISOString(),updatedAt:ANCHOR.toISOString(),lastSeenAt:ANCHOR.toISOString(),materialChangedAt:ANCHOR.toISOString()});state.commitments.unshift(c);e.target.reset();persist(`Captured “${title}” to Inbox.`);showView('signals')});
 
 renderAll();showView('signals');
