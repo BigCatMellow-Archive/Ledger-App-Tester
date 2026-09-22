@@ -100,7 +100,7 @@ The prototype exposes local/external save status, but it does not yet prove:
 - real event-trigger observation;
 - notification delivery;
 - missed-trigger detection;
-- import/recovery from incumbent Ledger data.
+- real same-snapshot comparison against the user's current Ledger data after conversion.
 
 ### Maintenance cost
 
@@ -149,3 +149,18 @@ Reproduced checks:
 - `app.js`, `state-io.js`, and `signal-policy.js` syntax: PASS.
 
 The synthetic default therefore contains **four material signals**, while the active return point remains visible through the Current Focus strip.
+
+## Subsequent realistic-data bridge — 2026-09-22
+
+The tester now includes a conservative Ledger-snapshot conversion path under `experiments/ledger-import-v1/`.
+
+The bridge is preview-before-apply, preserves source provenance, does not mutate the selected Ledger snapshot, and refuses to invent structured wake conditions from free-text dependencies. The current Signal + Pull state is backed up before a converted snapshot is applied.
+
+Reproduced checks:
+
+- converter: 14/14 PASS;
+- preview/apply contract: 12/12 PASS;
+- full organization suite: PASS;
+- Signal + Pull reliability workflow: PASS.
+
+This closes the **technical import/recovery gap** for tester experimentation. It does **not** prove that Signal + Pull is preferable with the user's real workload; the next meaningful comparison uses the same real Ledger snapshot in preserved V4 and converted Signal + Pull.
