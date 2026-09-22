@@ -49,6 +49,7 @@ function loadState(){
   return parsed.state;
 }
 let state=loadState();
+let pendingLedgerImport=null;
 function persist(message=''){
   if(!state)return;
   state.localSave='saved';
