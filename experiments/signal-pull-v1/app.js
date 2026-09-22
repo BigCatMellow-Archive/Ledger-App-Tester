@@ -74,17 +74,26 @@ function reasons(c){
   return out;
 }
 function signalKind(reason){if(reason.includes('due'))return ['TIME','1d','attention'];if(reason.includes('review'))return ['REVIEW','−1d','attention'];if(reason.includes('dependency'))return ['DEPENDENCY','✓',''];if(reason.includes('material'))return ['CHANGE','!',''];if(reason.includes('return')||reason.includes('pinned'))return ['RESUME','→','resume'];if(reason.includes('untriaged'))return ['INBOX','+',''];return ['SIGNAL','!','']}
-function signals(){return state.commitments.filter(c=>reasons(c).length).map(c=>({c,reasons:reasons(c)})).sort((a,b)=>weight(b.reasons[0])-weight(a.reasons[0]))}
+function signals(){return state.commitments.map(c=>({c,reasons:SignalPolicy.materialSignalReasons(reasons(c))})).filter(x=>x.reasons.length).sort((a,b)=>weight(b.reasons[0])-weight(a.reasons[0]))}
 function weight(r){if(r.includes('overdue'))return 100;if(r.includes('due within'))return 95;if(r.includes('return point stale'))return 92;if(r.includes('review'))return 88;if(r.includes('dependency'))return 82;if(r.includes('material'))return 78;if(r.includes('pinned'))return 70;if(r.includes('return point'))return 65;if(r.includes('untriaged'))return 50;return 1}
-function quietCommitments(){return state.commitments.filter(c=>c.workState!=='DONE'&&!reasons(c).length&&['WAITING','PARKED','QUIET'].includes(c.attentionState))}
+function quietCommitments(){return state.commitments.filter(c=>c.workState!=='DONE'&&!SignalPolicy.materialSignalReasons(reasons(c)).length&&['WAITING','PARKED','QUIET'].includes(c.attentionState))}
+function inboxCommitments(){return state.commitments.filter(c=>c.workState!=='DONE'&&c.attentionState==='INBOX')}
 function missingDisposition(){return quietCommitments().filter(c=>!c.reviewAt&&!c.parkedUntil&&!(c.waitingOn||[]).length&&!c.disposition)}
 function activeCount(){return state.commitments.filter(c=>c.workState==='ACTIVE'||c.attentionState==='NOW').length}
 function wakeText(c){if(c.workState==='ACTIVE'||c.attentionState==='NOW')return 'Active — no wake rule required';if(c.reviewAt)return `Review ${new Date(c.reviewAt).toLocaleDateString()}`;if(c.parkedUntil)return `Wake ${new Date(c.parkedUntil).toLocaleDateString()}`;if(c.waitingOn?.length)return `Dependency: ${c.waitingOn.join(', ')}`;return c.disposition||'No wake path';}
-function renderSummary(){const sig=signals();$('systemSummary').textContent=`${sig.length} signals · active ${activeCount()}/3 · ${state.commitments.length} holdings · local ${state.localSave} · external ${state.externalSave}`}
+function renderSummary(){const sig=signals();$('systemSummary').textContent=`${sig.length} signals · active ${activeCount()}/3 · inbox ${inboxCommitments().length} · ${state.commitments.length} holdings · local ${state.localSave} · external ${state.externalSave}`}
 function actionLabel(c,reason){if(reason.includes('review'))return 'Decide';if(reason.includes('material')||reason.includes('stale'))return 'Inspect';if(c.workState==='ACTIVE'||reason.includes('pinned'))return 'Resume';return 'Pull'}
-function renderSignals(){const sig=signals();$('signalCount').textContent=`${sig.length} SIGNALS`;$('signalsList').innerHTML=sig.length?sig.map(({c,reasons})=>{const [label,mark,tone]=signalKind(reasons[0]);return `<article class="signal-row ${tone}"><div class="signal-type">${esc(label)}<strong>${esc(mark)}</strong></div><div class="signal-copy"><h3>${esc(c.title)}</h3><p>${esc(signalDescription(c,reasons))}</p><small>Why now: ${esc(reasons.join(' · '))}</small></div><button class="signal-action" type="button" data-pull="${esc(c.id)}">${esc(actionLabel(c,reasons[0]))}</button></article>`}).join(''):`<div class="empty-state"><strong>Nothing needs attention.</strong><br>Stable holdings remain quiet. You can inspect them at any time.</div>`;
+function renderFocusStrip(){
+  const c=byId(state.focusId);
+  const strip=$('currentFocusStrip');
+  if(!c||c.workState==='DONE'||!(c.workState==='ACTIVE'||c.attentionState==='NOW')){strip.hidden=true;strip.innerHTML='';return}
+  strip.hidden=false;
+  strip.innerHTML=`<div class="focus-strip-label">Current focus</div><div><strong>${esc(c.title)}</strong><small>${esc(c.returnPoint?.nextAction||c.nextAction||'Return point available')}</small></div><button type="button" data-view="focus">Resume</button>`;
+}
+function renderSignals(){const sig=signals();renderFocusStrip();$('signalCount').textContent=`${sig.length} SIGNALS`;$('signalsList').innerHTML=sig.length?sig.map(({c,reasons})=>{const [label,mark,tone]=signalKind(reasons[0]);return `<article class="signal-row ${tone}"><div class="signal-type">${esc(label)}<strong>${esc(mark)}</strong></div><div class="signal-copy"><h3>${esc(c.title)}</h3><p>${esc(signalDescription(c,reasons))}</p><small>Why now: ${esc(reasons.join(' · '))}</small></div><button class="signal-action" type="button" data-pull="${esc(c.id)}">${esc(actionLabel(c,reasons[0]))}</button></article>`}).join(''):`<div class="empty-state"><strong>No material changes need attention.</strong><br>Current Focus and Inbox remain visible separately; stable holdings stay quiet.</div>`;
   const decisions=sig.filter(x=>x.reasons.some(r=>r.includes('review')||r.includes('stale')));$('decisionCount').textContent=`${decisions.length} OPEN`;$('decisionList').innerHTML=decisions.length?decisions.map(({c,reasons})=>decisionHtml(c,reasons)).join(''):`<div class="empty-state">No decisions are waiting.</div>`;
   $('quietSummary').textContent=`${quietCommitments().length} unfinished commitments are intentionally quiet. ${missingDisposition().length?'Some are missing a wake/disposition path.':'Every quiet item has an inspectable wake/disposition path.'}`;
+  $('inboxSummary').textContent=`${inboxCommitments().length} captured commitments are waiting in Inbox. Capture does not automatically turn them into material signals.`;
 }
 function signalDescription(c,reasons){const r=reasons[0]||'';if(r.includes('review'))return `The waiting review condition fired. ${c.nextAction}`;if(r.includes('due'))return `Due ${new Date(c.dueAt).toLocaleDateString()}. ${c.nextAction}`;if(r.includes('dependency'))return `A required dependency completed. ${c.nextAction}`;if(r.includes('material'))return `Material state changed after you last saw this commitment.`;if(r.includes('stale'))return `The saved return point predates a material change.`;if(r.includes('pinned')||r.includes('return'))return `Return point available. ${c.returnPoint?.summary||''}`;if(r.includes('untriaged'))return `Captured but not yet triaged.`;return c.nextAction||'Inspect current state.'}
 function decisionHtml(c,reasons){if(reasons.some(r=>r.includes('review')))return `<article class="decision"><small>WAITING STATE EXPIRED</small><h3>${esc(c.title)}</h3><p>The review condition fired. Choose what happens next.</p><div class="decision-actions"><button class="primary" type="button" data-pull="${esc(c.id)}">Follow up now</button><button type="button" data-wait="${esc(c.id)}">Wait 2 days</button><button type="button" data-park="${esc(c.id)}">Park 7 days</button></div></article>`;return `<article class="decision"><small>STALE CONTEXT</small><h3>${esc(c.title)}</h3><p>A material change occurred after the saved return point.</p><div class="decision-actions"><button class="primary" type="button" data-pull="${esc(c.id)}">Review change</button><button type="button" data-clear="${esc(c.id)}">Mark seen</button></div></article>`}
@@ -121,6 +130,7 @@ function renderAll(){
   document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
   renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();
 }
+function openInbox(){const search=$('holdingsSearch');if(search)search.value='INBOX';renderHoldings('INBOX');showView('holdings')}
 function showView(name){
   if(!state&&name!=='recovery'){renderRecovery();return}
   document.querySelectorAll('.view').forEach(v=>v.hidden=true);
@@ -176,6 +186,7 @@ document.addEventListener('click',e=>{
   if(b.dataset.exportSnapshot!==undefined)return exportSnapshot();
   if(b.dataset.importSnapshot!==undefined)return openImport();
   if(b.dataset.resetFixture!==undefined)return resetFixture();
+  if(b.dataset.inboxView!==undefined)return openInbox();
   if(b.dataset.view)return showView(b.dataset.view);
   if(b.dataset.pull)return pull(b.dataset.pull);
   if(b.dataset.wait)return waitTwoDays(b.dataset.wait);
