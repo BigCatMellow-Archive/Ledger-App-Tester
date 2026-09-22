@@ -325,16 +325,16 @@ Checkpoint:
 
 Goal: discover the product shape rather than inherit it.
 
-- [ ] Generate materially different architectures from the same proven model/capabilities.
-- [ ] Include at least one concept that does **not** use project-first navigation.
-- [ ] Include at least one concept that does **not** use Chronicle/timeline as the deep-work owner.
-- [ ] Include at least one concept where attention/trigger state is the primary navigation structure.
-- [ ] Compare each concept against the incumbent as a baseline, not as authority.
-- [ ] Reject concepts that are merely Ledger with moved panels or renamed sections.
-- [ ] Select promising directions only after fixture-based comparison and independent challenge.
+- [x] Generate materially different architectures from the same proven model/capabilities.
+- [x] Include at least one concept that does **not** use project-first navigation.
+- [x] Include at least one concept that does **not** use Chronicle/timeline as the deep-work owner.
+- [x] Include at least one concept where attention/trigger state is the primary navigation structure.
+- [x] Compare each concept against the incumbent as a baseline, not as authority.
+- [x] Reject concepts that are merely Ledger with moved panels or renamed sections.
+- [x] Select promising directions only after fixture-based comparison and independent challenge.
 
 Checkpoint:
-- choose architecture based on measured/reproduced organization performance and cognitive cost, not resemblance to existing Ledger.
+- **SELECTED FOR PROTOTYPE — Signal + Pull (2026-09-22).** Four standalone concepts were rendered at 1440×1000 and 390×844, checked for horizontal overflow/basic labeling, and compared using the AIDB clean-sheet/council lenses. Signal Desk best minimized visible inventory; Dispatcher contributed the compatible bounded Pull/Focus transition. Horizons over-weighted time; Mission Board imposed excessive categorization. Evidence: [architecture search](../experiments/architecture-search/README.md).
 
 ## Phase 3 — Prototype the selected architecture
 
