@@ -402,7 +402,7 @@ Checkpoint:
   - storage/recovery trust;
   - accessibility/mobile repeated use.
 - [ ] Correct review findings.
-- [ ] Run final fixed fixture suite.
+- [x] Run final fixed fixture suite. PR #15 GitHub Actions passed the focused Signal + Pull reliability workflow and the full organization suite (attention mechanics, snapshot IO, corruption/import, material-signal policy, Focus/Inbox separation, and ranking experiment).
 - [x] Record residual limitations in the reliability record and pre-independent challenge.
 - [ ] Decide separately whether production promotion is warranted.
 
@@ -425,6 +425,8 @@ A reviewer should specifically ask:
 
 ## Current project decision
 
-Complete the final implementer-owned regression suite, then stop at the **independent-review boundary**. The current operator must not approve its own substantive clean-sheet candidate.
+**BLOCKED AT INDEPENDENT REVIEW — 2026-09-22.** All implementer-owned research, prototype, reliability, signal-semantics, ranking, adversarial pre-review, and regression-suite work is complete. The current operator must not approve its own substantive clean-sheet candidate.
+
+The remaining required review must be performed by a genuinely separate reviewer using [the fresh-review prompt](FRESH-INDEPENDENT-ORGANIZATION-REVIEW-PROMPT-2026-09-22.md). A GitHub Copilot review is technically available, but it may consume paid AI credits depending on organization settings and therefore is not triggered without separate spending authority.
 
 A fresh reviewer must challenge Signal + Pull rather than assume newer is better, reproduce the mechanics/reliability/signal/ranking evidence, and compare against the preserved V4 incumbent. External restore/conflict-safe synchronization remains a named production-level dependency and blocks any universal 'safe to forget' durability claim.
