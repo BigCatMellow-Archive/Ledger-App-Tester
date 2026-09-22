@@ -5,18 +5,18 @@
 - Repository baseline: `BigCatMellow-Archive/Ledger-App-Tester@bf2bc1dc40198cda541a3792cd212aefb94ef906`
 - MAPS_L baseline: `BigCatMellow/MAPS_Lean@f15c71c664834cd002e1edc56b32d715489d6c9c`
 - AI Design Bible baseline: `BigCatMellow/Pilot_Projects@99682e078947fd9bc0e892599867d5f8df19c97e`
-- Parent question: how should Ledger help one person stay organized when many projects, tasks, dependencies, interruptions, and waiting states coexist?
+- Parent question: what should the best personal high-volume organization system do when many commitments, dependencies, interruptions, and waiting states coexist? Ledger is the incumbent reference/test harness, not an architectural constraint.
 - Authority: research and project-shaping evidence only. This does not authorize production changes.
 
 ## Research objective
 
-Understand what successful organization looks like in high-volume work, what humans keep in working memory versus external systems, and which mechanisms should inform Ledger before another interface redesign.
+Understand what successful organization looks like in high-volume work, what humans keep in working memory versus external systems, and which mechanisms should shape a clean-sheet personal operations system. Existing Ledger behavior is evidence to inspect, not a format to preserve.
 
 The target is not a prettier task list. The target is a system that reduces unnecessary memory maintenance while keeping the person in control of judgment.
 
 ## Current product reality
 
-Ledger currently preserves rich project/task state, notes, journal, work history, roadmap framing, dependencies, proof, and status. The V4 tester selected Chronicle because it structurally supports re-entry into a project through a checkpoint, material chronology, and separate Next queue.
+Ledger currently preserves rich project/task state, notes, journal, work history, roadmap framing, dependencies, proof, and status. The V4 tester selected Chronicle because it structurally supports re-entry into a project through a checkpoint, material chronology, and separate Next queue. Those are useful incumbent capabilities and lessons, but neither the project/task hierarchy nor Chronicle is presumed to be the correct future architecture.
 
 The V4 signal retrospective also established a durable distinction:
 
@@ -43,8 +43,9 @@ The mechanisms below are supported by the cited domains, but domain practice is 
 
 ### UNKNOWN
 
-- The best number of simultaneously active Ledger commitments for one person.
-- Whether a Control Tower should be a separate home surface, an overlay, or a project-switching mode.
+- The best number of simultaneously active commitments for one person.
+- Whether projects/tasks are even the right primary organizing primitives.
+- Which clean-sheet architecture best satisfies global orientation, deep-work continuity, waiting/resurfacing, and recovery.
 - Which resurfacing rules should be automatic versus user-authored.
 - Whether algorithmic ranking materially improves over explicit rule-based attention states.
 - Whether the current browser-first one-way snapshot storage model is reliable enough for strong cognitive offloading.
@@ -315,23 +316,34 @@ A single AI/score ranking can conceal assumptions. Start with explicit rule/stat
 
 The more successful Ledger is at letting the user forget, the more damaging silent loss or failed resurfacing becomes. Stronger offloading must be paired with stronger recovery guarantees.
 
-### Failure: Chronicle absorbs the global problem
+### Failure: the incumbent quietly becomes the specification
 
-Chronicle remains valuable for project-local continuity. Forcing all global triage into the Chronicle would mix two different tasks and likely recreate noise.
+A useful existing behavior can survive without its existing container. Chronicle, project tabs, task statuses, and the proposed Control Tower are all hypotheses. Preserve proven user outcomes and evidence, not familiar screen structure or terminology.
 
 ## Research conclusion
 
-The evidence supports a product direction in which:
+The evidence supports **capabilities**, not one interface architecture:
 
 ```text
-GLOBAL CONTROL TOWER
-answers: what needs me across everything?
+GLOBAL ORIENTATION
+what needs attention and why?
 
-PROJECT CHRONICLE
-answers: what happened here and how do I resume?
+DEEP-WORK CONTINUITY
+where was I and how do I resume?
 
-FULL HISTORY / AUDIT
-answers: what exactly happened if I need evidence?
+QUIET-WORK GOVERNANCE
+what is waiting/parked, and how will it return?
+
+MATERIAL DELTA
+what changed that matters?
+
+PROVENANCE / HISTORY
+what exactly happened if I need evidence?
+
+RELIABILITY
+can I safely trust the system to remember and resurface this?
 ```
 
-The next project step should define this as a formal organization model and evaluate the model with fixed high-volume fixtures before implementation.
+A Control Tower, Chronicle, project hierarchy, task list, timeline, queue, spatial board, temporal horizon, or another structure may satisfy those jobs. None is privileged because it already exists.
+
+The next project step should preserve these research-backed capabilities, generate materially different clean-sheet architectures, and evaluate them against fixed high-volume fixtures before choosing a product shape.
