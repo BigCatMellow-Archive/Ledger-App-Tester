@@ -1,7 +1,7 @@
 # Ledger Organization Project — MAPS_L Roadmap and Evaluation Fixtures
 
 - Date: 2026-09-22
-- State: WORKING ROADMAP / PHASE 4 RELIABILITY HARDENED
+- State: WORKING ROADMAP / PHASE 6 PRE-INDEPENDENT REVIEW
 - Research owner: [LEDGER-ORGANIZATION-RESEARCH-2026-09-22.md](LEDGER-ORGANIZATION-RESEARCH-2026-09-22.md)
 - Model owner: [LEDGER-ORGANIZATION-MODEL-2026-09-22.md](LEDGER-ORGANIZATION-MODEL-2026-09-22.md)
 - Method: MAPS_L project bootstrap + AI Design Bible high-volume/context/state rules
@@ -74,12 +74,12 @@ Reconsider the model before adding complexity if a deterministic state/trigger s
 
 ### VERIFIED
 
-- V4 Chronicle exists in the tester and is the current experimental front door.
+- V4 Chronicle remains available and is preserved exactly on `archive/v4-chronicle-2026-09-22`; the tester root is now an experiment launcher rather than a V4-only front door.
 - Chronicle has a resume checkpoint, material chronology, Next rail, project switcher, and separate full history path.
 - Ledger data already contains rich task context including dependencies, status, notes, acceptance/proof, links, work logs, journal, and project framing.
 - AI Design Bible has high-volume research and normalized rules for truthful state, multi-item scope, and context re-entry.
 - MAPS_L provides project bootstrap, task lifecycle, information lifecycle, evidence/review, and continuation methods.
-- No current Control Tower/attention model was found in the tester docs/code search.
+- Signal + Pull V1 is the current clean-sheet candidate; it separates material Signals, current Focus, Inbox intake, and inspectable Holdings while keeping V4 available for comparison.
 
 ## Working hypotheses
 
@@ -391,6 +391,8 @@ Checkpoint:
 
 ## Phase 6 — Independent review and promotion decision
 
+- [x] Implementer adversarial pre-review completed; it found and corrected Focus duplication and Inbox-to-Signal noise. This is explicitly **not** independent review. Evidence: [pre-independent challenge](ORGANIZATION-PRE-INDEPENDENT-CHALLENGE-2026-09-22.md).
+- [x] Fresh independent review packet/prompt preserved for a separate reviewer: [review prompt](FRESH-INDEPENDENT-ORGANIZATION-REVIEW-PROMPT-2026-09-22.md).
 - [ ] Fresh reviewer receives research, model, fixtures, and working tester.
 - [ ] Reviewer attempts to falsify:
   - safe quiet-state claim;
@@ -400,8 +402,8 @@ Checkpoint:
   - storage/recovery trust;
   - accessibility/mobile repeated use.
 - [ ] Correct review findings.
-- [ ] Run final fixed fixture suite.
-- [ ] Record residual limitations.
+- [x] Run final fixed fixture suite. PR #15 GitHub Actions passed the focused Signal + Pull reliability workflow and the full organization suite (attention mechanics, snapshot IO, corruption/import, material-signal policy, Focus/Inbox separation, and ranking experiment).
+- [x] Record residual limitations in the reliability record and pre-independent challenge.
 - [ ] Decide separately whether production promotion is warranted.
 
 Production promotion is a distinct action and is not implied by passing the tester evaluation.
@@ -423,6 +425,8 @@ A reviewer should specifically ask:
 
 ## Current project decision
 
-Proceed to **Phase 6 — independent review and promotion decision** for the tester research arc. Ranking escalation is closed unless real use later demonstrates a material ordering problem.
+**BLOCKED AT INDEPENDENT REVIEW — 2026-09-22.** All implementer-owned research, prototype, reliability, signal-semantics, ranking, adversarial pre-review, and regression-suite work is complete. The current operator must not approve its own substantive clean-sheet candidate.
 
-The review must challenge the selected Signal + Pull direction rather than assume newer is better, reproduce the fixed mechanics/reliability/ranking evidence, and compare against the preserved V4 incumbent. External restore/conflict-safe synchronization remains a named production-level dependency and blocks any universal 'safe to forget' durability claim.
+The remaining required review must be performed by a genuinely separate reviewer using [the fresh-review prompt](FRESH-INDEPENDENT-ORGANIZATION-REVIEW-PROMPT-2026-09-22.md). A GitHub Copilot review is technically available, but it may consume paid AI credits depending on organization settings and therefore is not triggered without separate spending authority.
+
+A fresh reviewer must challenge Signal + Pull rather than assume newer is better, reproduce the mechanics/reliability/signal/ranking evidence, and compare against the preserved V4 incumbent. External restore/conflict-safe synchronization remains a named production-level dependency and blocks any universal 'safe to forget' durability claim.

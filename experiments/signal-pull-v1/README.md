@@ -33,7 +33,9 @@ The experiment seeds a fixed 100-commitment workload anchored to `2026-09-22T13:
 
 ## Implemented behavior
 
-- five seeded material signals;
+- four seeded material-change signals on the default desk;
+- current Focus shown separately from material signals;
+- Inbox count/retrieval shown separately so low-friction capture does not flood the Signal desk;
 - deterministic “why now” reasons;
 - pull/resume into one Focus surface;
 - active-capacity guard;
@@ -79,8 +81,10 @@ Reproducible reliability checks:
 ```text
 node state-io.test.js
 node reliability-contract.test.js
+node signal-policy.test.js
+node signal-contract.test.js
 ```
 
-The reliability branch passed 6/6 snapshot-format tests and 8/8 app corruption/import contract tests. `.github/workflows/test-signal-pull-reliability.yml` preserves these as regression checks.
+The reliability branch passed 6/6 snapshot-format tests and 8/8 app corruption/import contract tests. The pre-independent challenge then passed 7/7 material-signal policy tests and 9/9 Focus/Inbox separation checks. `.github/workflows/test-signal-pull-reliability.yml` preserves these as regression checks.
 
 The current production Ledger one-way GitHub snapshot is documented as backup evidence, not sufficient clean-browser restore or multi-device synchronization.
