@@ -182,6 +182,53 @@ function exportSnapshot(){
 }
 function downloadCorruptBackup(){if(corruptRaw)downloadText('signal-pull-v1-corrupt-raw.txt',corruptRaw,'text/plain')}
 function openImport(){const input=$('snapshotImport');if(input){input.value='';input.click()}}
+function openLedgerImport(){
+  const input=$('ledgerImport');
+  if(input){input.value='';input.click()}
+}
+async function previewLedgerImport(file){
+  if(!file)return;
+  let source;
+  try{source=JSON.parse(await file.text())}
+  catch(error){pendingLedgerImport=null;toast('Ledger import rejected: file is not valid JSON.');renderLedgerImportPreview();return}
+  try{
+    pendingLedgerImport=LedgerImportV1.convertLedgerSnapshot(source,{convertedAt:ANCHOR.toISOString()});
+    renderLedgerImportPreview();
+    showView('reliability');
+    toast('Ledger snapshot converted for preview. Nothing has been applied yet.');
+  }catch(error){
+    pendingLedgerImport=null;
+    toast('Ledger import rejected: '+error.message);
+    renderLedgerImportPreview();
+  }
+}
+function cancelLedgerImport(){
+  pendingLedgerImport=null;
+  renderLedgerImportPreview();
+  toast('Ledger import preview cancelled.');
+}
+function applyLedgerImport(){
+  if(!pendingLedgerImport)return;
+  try{
+    if(state)localStorage.setItem(PRE_LEDGER_IMPORT_BACKUP_KEY,SignalStateIO.serializeSnapshot(state));
+  }catch(error){
+    toast('Could not create pre-import backup: '+error.message);
+    return;
+  }
+  let next;
+  try{next=SignalStateIO.normalizeState(pendingLedgerImport.state)}
+  catch(error){toast('Converted snapshot failed Signal + Pull validation: '+error.message);return}
+  next.localSave='saved';
+  state=next;
+  corruptRaw='';
+  loadError='';
+  pendingLedgerImport=null;
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Converted Ledger state is memory only: '+error.message}
+  renderAll();
+  showView('signals');
+  toast('Converted Ledger snapshot applied to Signal + Pull tester.');
+}
 async function importSnapshot(file){
   if(!file)return;
   const text=await file.text();
