@@ -67,6 +67,16 @@ module.exports=[
     guards:[],
   },
   {
+    id:'explicitly-defer-overdue-order',
+    intent:'The overdue obligation must remain surfaced, but the operator has explicitly chosen to finish a valid active return point first.',
+    items:[
+      {id:'overdue-visible',title:'Overdue but consciously deferred',reasons:['due now or overdue'],updatedAt:T,userOrder:2},
+      {id:'chosen-focus',title:'Finish current deep work first',reasons:['active return point','user pinned'],updatedAt:'2026-09-22T14:20:00Z',userOrder:1},
+    ],
+    expectedOrder:['chosen-focus','overdue-visible'],
+    guards:[],
+  },
+  {
     id:'eligibility-precedes-ranking',
     intent:'An ineligible item must not be ranked merely because it is preferred.',
     items:[
