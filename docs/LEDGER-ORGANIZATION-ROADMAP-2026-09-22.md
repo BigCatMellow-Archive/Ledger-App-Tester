@@ -1,7 +1,7 @@
 # Ledger Organization Project — MAPS_L Roadmap and Evaluation Fixtures
 
 - Date: 2026-09-22
-- State: WORKING ROADMAP / RESEARCH PHASE COMPLETE
+- State: WORKING ROADMAP / PHASE 4 RELIABILITY HARDENED
 - Research owner: [LEDGER-ORGANIZATION-RESEARCH-2026-09-22.md](LEDGER-ORGANIZATION-RESEARCH-2026-09-22.md)
 - Model owner: [LEDGER-ORGANIZATION-MODEL-2026-09-22.md](LEDGER-ORGANIZATION-MODEL-2026-09-22.md)
 - Method: MAPS_L project bootstrap + AI Design Bible high-volume/context/state rules
@@ -356,15 +356,15 @@ Checkpoint:
 
 Goal: make stronger cognitive offloading safe.
 
-- [ ] Define visible local-save state.
-- [ ] Define external snapshot/sync state separately.
-- [ ] Detect commitments with no resurfacing/disposition.
-- [ ] Test reload/corruption/import/export recovery paths.
-- [ ] Determine whether one-way GitHub snapshot is sufficient for intended use.
-- [ ] If not sufficient, research synchronization architecture separately rather than hiding the limitation.
+- [x] Define visible local-save state.
+- [x] Define external snapshot/sync state separately.
+- [x] Detect commitments with no resurfacing/disposition.
+- [x] Test reload/corruption/import/export recovery paths.
+- [x] Determine whether one-way GitHub snapshot is sufficient for intended use.
+- [x] If not sufficient, research synchronization architecture separately rather than hiding the limitation.
 
 Checkpoint:
-- do not claim “safe to forget” until recovery and resurfacing failures are inspectable.
+- **CONTINUE WITH EXPLICIT LIMIT — 2026-09-22.** Local reliability now preserves corrupt raw state, blocks unsafe editing, validates import before replacement, exports versioned snapshots, distinguishes local from external recovery truth, and runs 6/6 snapshot plus 8/8 app recovery checks. The current Ledger one-way GitHub snapshot was rechecked and is **not sufficient** for strong “safe to forget” durability because clean-browser restore, stale-writer protection, conflict detection, and authoritative latest-state recovery are absent. A bounded next architecture is recorded: remote snapshot lineage + restore + compare-before-push + explicit conflict, without prematurely building CRDT/field-level merge. Evidence: [Signal + Pull reliability](../experiments/signal-pull-v1/RELIABILITY.md).
 
 ## Phase 5 — Ranking experiment
 
@@ -408,7 +408,7 @@ A reviewer should specifically ask:
 1. Does this system actually reduce remembering, or merely move remembering into metadata maintenance?
 2. Can any unfinished item become invisible without an explicit reason?
 3. Can a wrong trigger keep important work quiet?
-4. Does the Control Tower surface too much and recreate overload?
+4. Does Signal + Pull surface too much or too little and recreate overload or hidden-work anxiety?
 5. Does deterministic routing respect human judgment?
 6. Does the current storage model justify the amount of trust the UI invites?
 7. Did the selected architecture solve global orientation and deep-work continuity cleanly without preserving an incumbent structure by habit?
@@ -418,6 +418,6 @@ A reviewer should specifically ask:
 
 ## Current project decision
 
-Proceed to **Phase 1 — Data model experiment** without treating the current Ledger UI, project/task schema, Chronicle, or proposed Control Tower as the destination.
+Proceed to **Phase 5 — ranking experiment** inside the tester. Deterministic routing remains the baseline. Compare it against user-authored and hybrid ordering using frozen scenarios; only test AI ranking if a measurable gap remains. Do not add AI merely because it is available.
 
-After the model proves itself, run a genuine clean-sheet architecture search before polished implementation. The next useful artifact remains a synthetic fixture dataset plus a deterministic attention/resurfacing selector because that lets the underlying organization mechanics prove themselves independently of any familiar interface.
+External restore/conflict-safe synchronization remains a named production-level dependency, not a reason to block further tester product experiments.
