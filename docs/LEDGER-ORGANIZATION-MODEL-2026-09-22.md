@@ -3,12 +3,18 @@
 - Date: 2026-09-22
 - State: WORKING MODEL / PROTOTYPE INPUT
 - Depends on: [LEDGER-ORGANIZATION-RESEARCH-2026-09-22.md](LEDGER-ORGANIZATION-RESEARCH-2026-09-22.md)
-- Product baseline: Ledger V4 Chronicle
+- Incumbent reference: Ledger V4 Chronicle — evidence/test harness only, not an architecture to preserve
 - Authority: model for evaluation only; does not authorize production schema/UI changes
+
+## Clean-sheet premise
+
+The target is the best system we can justify from evidence, not “Ledger plus improvements.” Existing Ledger concepts may be kept, transformed, or discarded. Familiarity, prior implementation effort, and current screen structure are not preservation arguments.
+
+Preserve only outcomes that survive evaluation: reliable offloading, attention control, re-entry, resurfacing, material context, provenance, and human authority.
 
 ## Product job
 
-Ledger should help a person with many simultaneous commitments:
+The system should help a person with many simultaneous commitments:
 
 1. capture obligations without needing to remember them;
 2. know which small subset deserves attention now;
@@ -24,7 +30,7 @@ The intended outcome is not “zero mental effort.” The system should offload 
 
 Do not force all organization into one status enum.
 
-Existing Ledger work states such as:
+Existing Ledger work states such as the following are one incumbent representation, not a required future schema:
 
 ```text
 OPEN
@@ -67,7 +73,7 @@ A project may have many OPEN items and only one or two in NOW.
 
 ## The commitment object
 
-A useful Ledger commitment should be able to answer these fields when material:
+A useful commitment/work object should be able to answer these questions/fields when material. The object itself does not have to be called a task or live under a project:
 
 ```text
 identity
@@ -119,7 +125,7 @@ The system must not silently move an item into or out of attention without retai
 
 ## Resurfacing contract
 
-A commitment is safely offloaded only if Ledger knows how it comes back.
+A commitment is safely offloaded only if the system knows how it comes back.
 
 Candidate resurfacing trigger classes:
 
@@ -198,7 +204,7 @@ The first baseline should use deterministic, explicit rules. AI-assisted ranking
 
 ## Active-capacity model
 
-Ledger should distinguish:
+The system should distinguish:
 
 ```text
 TOTAL OPEN COMMITMENTS
@@ -218,7 +224,7 @@ The UI may eventually:
 - warn rather than block;
 - make displacement explicit when a new urgent item enters NOW.
 
-## Global Control Tower
+## Candidate architecture A — Control Tower
 
 ### Job
 
@@ -273,9 +279,11 @@ last material change
 
 This is conceptually close to the earlier Continuity Atlas, but it should be generated from the attention model rather than become a second manually maintained dashboard.
 
-## Project Chronicle
+## Candidate deep-work continuity surface
 
-Chronicle retains the local continuity job:
+The incumbent Chronicle demonstrates one way to solve local continuity, but its structure is not frozen. The required job is: restore the smallest useful working context and make continuation obvious.
+
+One incumbent-shaped option is:
 
 ```text
 PROJECT IDENTITY
@@ -285,16 +293,17 @@ PROJECT IDENTITY
 → FULL HISTORY ON DEMAND
 ```
 
-The Control Tower should route into Chronicle rather than duplicate Chronicle.
+If this architecture survives evaluation, its global and deep-work surfaces should not duplicate one another.
 
-Control Tower:
-- cross-project selection and attention.
+But clean-sheet alternatives must also be generated. Examples worth testing include:
 
-Chronicle:
-- within-project orientation and continuation.
+- **Dynamic queue / dispatcher:** commitments flow through eligibility, waiting, and active lanes with no project-first home.
+- **Temporal horizons:** Now / Soon / Waiting / Later organized primarily by time and trigger, with projects as metadata.
+- **Mission board:** current objectives and dependencies are primary; tasks are generated/supporting detail.
+- **Event-driven workspace:** the home surface is material change + decisions needed; quiet work remains absent until a trigger fires.
+- **Hybrid graph:** people, commitments, dependencies, and contexts are first-class relationships rather than nested project/task folders.
 
-History/Audit:
-- exhaustive evidence.
+These are starting hypotheses, not a required five-concept quota. A better structure discovered during research/prototyping may replace them.
 
 ## Checkpoint / return-point contract
 
@@ -343,7 +352,7 @@ The system should distinguish:
 
 ## Material delta
 
-When returning after time away, Ledger should derive:
+When returning after time away, the system should derive:
 
 ```text
 what materially changed
@@ -359,7 +368,7 @@ Default surfaces should not show low-level mutation records when the structured 
 
 ## Reliability / trust contract
 
-Because successful cognitive offloading can reduce internal maintenance, Ledger must show enough system truth that a user can decide whether it is safe to rely on it.
+Because successful cognitive offloading can reduce internal maintenance, the system must show enough truth that a user can decide whether it is safe to rely on it.
 
 Required areas to evaluate before strong offloading claims:
 
@@ -419,7 +428,7 @@ Automation should not silently:
 2. **Every surfaced item has a reason.**
 3. **Every safely hidden unfinished item has a disposition or resurfacing path.**
 4. **NOW is bounded; OPEN is not.**
-5. **Chronicle and Control Tower solve different scales of orientation.**
+5. **Global orientation and deep-work continuity are distinct user jobs, but their final representation is unconstrained.**
 6. **Material delta is not audit history.**
 7. **Waiting state is reviewable and can become stale.**
 8. **A paused active item retains a return point.**
@@ -435,7 +444,10 @@ Automation should not silently:
 - notification channel;
 - cross-device synchronization architecture;
 - whether reminders are local, cloud-backed, or both;
-- whether a global Control Tower becomes the default landing page;
+- whether there should be a global Control Tower at all;
+- whether project/task hierarchy should survive at all;
+- whether time, events, objectives, dependencies, people, contexts, or commitments should be the primary navigation axis;
+- whether one surface or multiple scales best support global orientation and deep work;
 - whether AI adds measurable value over deterministic rules.
 
 These questions should be resolved by fixtures/prototypes rather than by preference alone.
