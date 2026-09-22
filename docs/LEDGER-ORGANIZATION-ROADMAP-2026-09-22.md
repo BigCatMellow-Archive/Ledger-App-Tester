@@ -303,10 +303,10 @@ Pass:
 
 Goal: test the model without committing to visual design.
 
-- [ ] Create a synthetic fixture dataset covering ORG-F01 through ORG-F13.
-- [ ] Define the smallest additive attention/resurfacing representation compatible with existing state.
-- [ ] Prefer derived/projection state when possible over duplicating canonical truth.
-- [ ] Implement a deterministic selector that can answer:
+- [x] Create a synthetic fixture dataset covering ORG-F01 through ORG-F13.
+- [x] Define a minimal architecture-neutral attention/resurfacing representation before any Ledger adapter.
+- [x] Prefer derived/projection state when possible over duplicating canonical truth.
+- [x] Implement a deterministic selector that can answer:
   - needs attention;
   - now;
   - next;
@@ -314,12 +314,12 @@ Goal: test the model without committing to visual design.
   - parked;
   - why now;
   - missing resurfacing/disposition.
-- [ ] Add unit-level tests for transitions and trigger evaluation.
-- [ ] Run fixtures without building a polished UI.
-- [ ] Challenge whether the state model adds enough value to proceed.
+- [x] Add unit-level tests for transitions and trigger evaluation.
+- [x] Run fixtures without building a polished UI.
+- [x] Challenge whether the state model adds enough value to proceed; record metadata-maintenance risk.
 
 Checkpoint:
-- **CONTINUE** only if the deterministic model can correctly route seeded scenarios without hidden state or manual duplication.
+- **CONTINUE — 2026-09-22.** Attention Engine V1 passed ORG-F01 through ORG-F13 plus a negative lost-work guard (14/14). Exact committed bytes matched the locally executed files. Proceed to architecture search, while treating metadata-maintenance cost as a primary failure mode. Evidence: [Attention Engine V1 result](../experiments/attention-engine-v1/RESULT.md).
 
 ## Phase 2 — Clean-sheet architecture search
 
