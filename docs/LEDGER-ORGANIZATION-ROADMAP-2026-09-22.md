@@ -340,17 +340,17 @@ Checkpoint:
 
 Goal: prove the selected clean-sheet structure end to end.
 
-- [ ] Build the smallest tester-only implementation needed to exercise the fixtures.
-- [ ] Add explicit “why now.”
-- [ ] Add inspectable waiting/quiet-work resurfacing.
-- [ ] Add cheap pause/return behavior in whatever representation the selected concept uses.
-- [ ] Add material-delta behavior without raw audit noise.
-- [ ] Avoid charts/metrics unless they solve a fixture.
-- [ ] Verify desktop and mobile repeated paths.
-- [ ] Run AI Design Bible visual/interaction/accessibility checks on rendered output.
+- [x] Build the smallest tester-only implementation needed to exercise the fixtures.
+- [x] Add explicit “why now.”
+- [x] Add inspectable waiting/quiet-work resurfacing.
+- [x] Add cheap pause/return behavior in whatever representation the selected concept uses.
+- [x] Add material-delta behavior without raw audit noise.
+- [x] Avoid charts/metrics unless they solve a fixture.
+- [x] Verify desktop and mobile repeated paths.
+- [x] Run AI Design Bible visual/interaction/accessibility checks on rendered output.
 
 Checkpoint:
-- compare the selected prototype against the incumbent baseline on the fixed fixtures.
+- **CONTINUE — Signal + Pull V1 functional prototype passed (2026-09-22).** Desktop and 390px phone interaction paths passed the seeded Signal → Focus → Pause/Park/Complete → Holdings flow; capture remained Inbox; zero-signal state remained truthful; quiet-work wake/disposition gaps were exposed; rendered testing caught and corrected review-date, released-dependency, mobile-scroll, and active-wake defects. No production integration occurred. Evidence: [Signal + Pull V1 result](../experiments/signal-pull-v1/RESULT.md).
 
 ## Phase 4 — Reliability hardening
 

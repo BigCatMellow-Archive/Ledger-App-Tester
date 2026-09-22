@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Signal + Pull — V1</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" type="button" data-view="signals" aria-label="Signal desk home">
+        <strong>Signal + Pull</strong><span>EXPERIMENT V1</span>
+      </button>
+      <div id="systemSummary" class="system-summary" aria-live="polite"></div>
+      <nav class="nav" aria-label="Primary">
+        <button type="button" data-view="signals">Signals</button>
+        <button type="button" data-view="focus">Focus</button>
+        <button type="button" data-view="holdings">Holdings</button>
+        <button class="capture-button" type="button" data-view="capture">Capture</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="signalsView" class="view" aria-labelledby="signalsTitle">
+        <div class="view-head">
+          <div><span class="kicker">SYSTEM ORIENTATION</span><h1 id="signalsTitle" tabindex="-1">What changed enough to matter?</h1></div>
+          <p>Stable commitments stay quiet. This surface contains only changes, expirations, resumptions, or decisions that alter what you should know or do.</p>
+        </div>
+        <div class="desk-layout">
+          <section aria-labelledby="materialSignalsHeading">
+            <div class="section-head"><h2 id="materialSignalsHeading">Material signals</h2><span id="signalCount"></span></div>
+            <div id="signalsList" class="signal-list"></div>
+          </section>
+          <aside class="decision-rail" aria-labelledby="decisionHeading">
+            <div class="section-head"><h2 id="decisionHeading">Decision queue</h2><span id="decisionCount"></span></div>
+            <div id="decisionList"></div>
+            <section class="quiet-summary">
+              <h3>Quiet holdings</h3>
+              <p id="quietSummary"></p>
+              <button type="button" data-view="holdings">Inspect holdings</button>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+      <section id="focusView" class="view" hidden aria-labelledby="focusTitle">
+        <div id="focusContent"></div>
+      </section>
+
+      <section id="holdingsView" class="view" hidden aria-labelledby="holdingsTitle">
+        <div class="view-head compact">
+          <div><span class="kicker">AUDITABLE QUIET STATE</span><h1 id="holdingsTitle" tabindex="-1">Holdings</h1></div>
+          <p>Everything remains inspectable. Quiet work must explain why it is quiet and how it will return.</p>
+        </div>
+        <label class="search-label" for="holdingsSearch">Search holdings</label>
+        <input id="holdingsSearch" class="search" type="search" placeholder="Search title, scope, state, wake rule">
+        <div id="holdingsWarning" class="system-warning" hidden></div>
+        <div id="holdingsList" class="holdings-list"></div>
+      </section>
+
+      <section id="captureView" class="view" hidden aria-labelledby="captureTitle">
+        <div class="view-head compact">
+          <div><span class="kicker">LOW-FRICTION INTAKE</span><h1 id="captureTitle" tabindex="-1">Capture without committing</h1></div>
+          <p>New obligations enter Inbox. They do not become active merely because they were captured.</p>
+        </div>
+        <form id="captureForm" class="capture-form">
+          <label>What entered your world?<textarea id="captureTitleInput" rows="3" required></textarea></label>
+          <label>Next action, if obvious<input id="captureNextInput" type="text"></label>
+          <label>Scope / context, optional<input id="captureScopeInput" type="text"></label>
+          <div class="form-actions"><button class="primary" type="submit">Capture to Inbox</button><button type="button" data-view="signals">Cancel</button></div>
+        </form>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
