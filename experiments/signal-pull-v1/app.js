@@ -135,9 +135,57 @@ function complete(id){const c=byId(id);if(!c)return;c.workState='DONE';c.attenti
 function clearSeen(id){const c=byId(id);if(!c)return;c.lastSeenAt=c.materialChangedAt;c.returnPoint=null;c.userPinned=false;c.updatedAt=ANCHOR.toISOString();persist('Marked material change as seen.');showView('signals')}
 function saveReturn(id){const c=byId(id);if(!c)return;c.returnPoint={summary:$('returnSummary').value.trim(),nextAction:$('returnNext').value.trim(),unresolved:$('returnUnresolved').value.trim(),updatedAt:ANCHOR.toISOString()};c.nextAction=c.returnPoint.nextAction;c.updatedAt=ANCHOR.toISOString();persist('Return point saved.');showView('focus')}
 function toast(message){const t=$('toast');t.textContent=message;t.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.hidden=true,3200)}
+function downloadText(filename,text,type='application/json'){
+  const blob=new Blob([text],{type});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function exportSnapshot(){
+  if(!state)return;
+  try{downloadText('signal-pull-v1-snapshot.json',SignalStateIO.serializeSnapshot(state));toast('Snapshot exported.')}
+  catch(error){toast('Export failed: '+error.message)}
+}
+function downloadCorruptBackup(){if(corruptRaw)downloadText('signal-pull-v1-corrupt-raw.txt',corruptRaw,'text/plain')}
+function openImport(){const input=$('snapshotImport');if(input){input.value='';input.click()}}
+async function importSnapshot(file){
+  if(!file)return;
+  const text=await file.text();
+  const parsed=SignalStateIO.parseSnapshot(text);
+  if(!parsed.ok){
+    loadError=(parsed.error+' '+(parsed.details||'')).trim();
+    toast('Import rejected: snapshot is invalid.');
+    if(state)renderReliability();else renderRecovery();
+    return;
+  }
+  state=parsed.state;state.localSave='saved';corruptRaw='';loadError='';
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Imported snapshot is memory only: '+error.message}
+  renderAll();showView('reliability');toast('Snapshot imported and validated.');
+}
+function resetFixture(){
+  state=SignalStateIO.normalizeState(seedState());corruptRaw='';loadError='';
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Reset state is memory only: '+error.message}
+  renderAll();if(state)showView('signals');toast('Synthetic fixture reset.');
+}
 
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.view)return showView(b.dataset.view);if(b.dataset.pull)return pull(b.dataset.pull);if(b.dataset.wait)return waitTwoDays(b.dataset.wait);if(b.dataset.park)return parkSevenDays(b.dataset.park);if(b.dataset.done)return complete(b.dataset.done);if(b.dataset.clear)return clearSeen(b.dataset.clear);if(b.dataset.saveReturn)return saveReturn(b.dataset.saveReturn)});
-$('holdingsSearch').addEventListener('input',e=>renderHoldings(e.target.value));
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.recoveryDownload!==undefined)return downloadCorruptBackup();
+  if(b.dataset.exportSnapshot!==undefined)return exportSnapshot();
+  if(b.dataset.importSnapshot!==undefined)return openImport();
+  if(b.dataset.resetFixture!==undefined)return resetFixture();
+  if(b.dataset.view)return showView(b.dataset.view);
+  if(b.dataset.pull)return pull(b.dataset.pull);
+  if(b.dataset.wait)return waitTwoDays(b.dataset.wait);
+  if(b.dataset.park)return parkSevenDays(b.dataset.park);
+  if(b.dataset.done)return complete(b.dataset.done);
+  if(b.dataset.clear)return clearSeen(b.dataset.clear);
+  if(b.dataset.saveReturn)return saveReturn(b.dataset.saveReturn);
+});
+$('holdingsSearch').addEventListener('input',e=>{if(state)renderHoldings(e.target.value)});
+$('snapshotImport').addEventListener('change',e=>importSnapshot(e.target.files?.[0]));
 $('captureForm').addEventListener('submit',e=>{e.preventDefault();const title=$('captureTitleInput').value.trim();if(!title)return;const c=seedCommitment(uid('capture'),{title,scope:$('captureScopeInput').value.trim()||'Inbox',attentionState:'INBOX',nextAction:$('captureNextInput').value.trim(),createdAt:ANCHOR.toISOString(),updatedAt:ANCHOR.toISOString(),lastSeenAt:ANCHOR.toISOString(),materialChangedAt:ANCHOR.toISOString()});state.commitments.unshift(c);e.target.reset();persist(`Captured “${title}” to Inbox.`);showView('signals')});
 
 renderAll();showView('signals');
