@@ -15,7 +15,11 @@ test('rejects non-Ledger-shaped source without items array',()=>{
   assert.equal(validateLedgerSnapshot({projects:[]}).ok,false);
 });
 
+const sourceBefore=JSON.stringify(LEDGER_FIXTURE);
 const converted=convertLedgerSnapshot(LEDGER_FIXTURE,{convertedAt:CONVERTED_AT});
+test('conversion does not mutate the source Ledger snapshot',()=>{
+  assert.equal(JSON.stringify(LEDGER_FIXTURE),sourceBefore);
+});
 const bySource=id=>converted.state.commitments.find(c=>c.source?.sourceId===id);
 
 test('converts actionable Ledger items but excludes NOTE items from commitments',()=>{
