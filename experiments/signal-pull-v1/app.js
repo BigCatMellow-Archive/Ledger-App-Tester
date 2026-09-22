@@ -113,7 +113,7 @@ function renderReliability(){
     '<section class="reliability-item"><h2>Quiet-work integrity</h2><strong>'+(missing.length?esc(String(missing.length))+' defects':'PASS')+'</strong><p>'+(missing.length?'Unfinished quiet commitments lack a wake/disposition path.':'Every unfinished quiet commitment currently has an inspectable return path.')+'</p></section>',
     '<section class="reliability-item"><h2>Snapshot format</h2><strong>v'+esc(SignalStateIO.SNAPSHOT_VERSION)+'</strong><p>'+state.commitments.length+' commitments. Import validates structure and duplicate IDs before replacing current state.</p></section>',
     '</div>',
-    '<div class="reliability-actions"><button class="primary" type="button" data-export-snapshot>Export JSON snapshot</button><button type="button" data-import-snapshot>Import JSON snapshot</button><button type="button" data-reset-fixture>Reset synthetic fixture</button></div>',
+    '<div class="reliability-actions"><button class="primary" type="button" data-export-snapshot>Export JSON snapshot</button><button type="button" data-import-snapshot>Import Signal + Pull snapshot</button><button type="button" data-import-ledger>Preview Ledger snapshot</button><button type="button" data-reset-fixture>Reset synthetic fixture</button></div>',
     '<p class="reliability-note">Recovery rule: unreadable local state is preserved and blocks normal operation until the user exports the raw record, imports a known-good snapshot, or explicitly resets the fixture. The system must never silently replace corrupt durable state with a fresh empty/default state.</p>',
     loadError?'<div class="system-warning">'+esc(loadError)+'</div>':''
   ].join('');
