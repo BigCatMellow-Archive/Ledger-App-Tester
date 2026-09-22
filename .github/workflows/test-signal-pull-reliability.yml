@@ -20,7 +20,14 @@ jobs:
         run: |
           node --check experiments/signal-pull-v1/app.js
           node --check experiments/signal-pull-v1/state-io.js
+          node --check experiments/signal-pull-v1/signal-policy.js
+          node --check experiments/signal-pull-v1/signal-policy.test.js
+          node --check experiments/signal-pull-v1/signal-contract.test.js
       - name: Test snapshot IO
         run: node experiments/signal-pull-v1/state-io.test.js
       - name: Test corruption and import contract
         run: node experiments/signal-pull-v1/reliability-contract.test.js
+      - name: Test material signal policy
+        run: node experiments/signal-pull-v1/signal-policy.test.js
+      - name: Test Focus and Inbox separation
+        run: node experiments/signal-pull-v1/signal-contract.test.js
