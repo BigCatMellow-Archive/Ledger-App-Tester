@@ -26,9 +26,37 @@ function seedState() {
   while(commitments.length<100){const i=commitments.length+1;commitments.push(seedCommitment(`routine-${i}`,{title:`Routine commitment ${i}`,scope:['School','Home','Projects','Personal'][i%4],updatedAt:atDays(-.5),lastSeenAt:atDays(-.5),materialChangedAt:atDays(-.5)}));}
   return {commitments,focusId:'active-return-point',createdAt:ANCHOR.toISOString(),localSave:'saved',externalSave:'not configured'};
 }
-function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):seedState()}catch(e){return seedState()}}
+let corruptRaw='';
+let loadError='';
+function loadState(){
+  corruptRaw='';loadError='';
+  let raw='';
+  try{raw=localStorage.getItem(STORAGE_KEY)||''}
+  catch(error){
+    const fallback=SignalStateIO.normalizeState(seedState());
+    fallback.localSave='memory only';
+    loadError='Browser storage could not be read: '+error.message;
+    return fallback;
+  }
+  if(!raw)return SignalStateIO.normalizeState(seedState());
+  const parsed=SignalStateIO.parseSnapshot(raw);
+  if(!parsed.ok){
+    corruptRaw=raw;
+    loadError=(parsed.error+' '+(parsed.details||'')).trim();
+    return null;
+  }
+  parsed.state.localSave='saved';
+  return parsed.state;
+}
 let state=loadState();
-function persist(message=''){state.localSave='saved';try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){state.localSave='memory only'}renderAll();if(message)toast(message)}
+function persist(message=''){
+  if(!state)return;
+  state.localSave='saved';
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Browser storage write failed: '+error.message}
+  renderAll();
+  if(message)toast(message);
+}
 function byId(id){return state.commitments.find(c=>c.id===id)}
 function dependencyState(c){if(!c.waitingOn?.length)return {waiting:false,released:false};const deps=c.waitingOn.map(byId);return {waiting:deps.some(d=>!d||d.workState!=='DONE'),released:deps.length>0&&deps.every(d=>d?.workState==='DONE')}}
 function returnStale(c){return !!(c.returnPoint?.updatedAt&&c.materialChangedAt&&toTime(c.materialChangedAt)>toTime(c.returnPoint.updatedAt))}
