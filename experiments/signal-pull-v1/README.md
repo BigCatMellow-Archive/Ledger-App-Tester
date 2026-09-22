@@ -50,7 +50,8 @@ The experiment seeds a fixed 100-commitment workload anchored to `2026-09-22T13:
 - low-friction Inbox capture;
 - local save-status truth with explicit external-save status;
 - dedicated Reliability view separating local durability, external recovery, quiet-work integrity, and snapshot format;
-- validated JSON snapshot export/import;
+- validated Signal + Pull JSON snapshot export/import;
+- preview-before-apply import of incumbent Ledger snapshots through the tested Ledger Import V1 bridge;
 - corruption recovery that preserves raw unreadable data and blocks normal editing instead of silently reseeding;
 - regression tests for snapshot format and app recovery behavior.
 
@@ -60,7 +61,7 @@ This is not a production schema.
 
 The prototype does **not** yet include:
 
-- migration/import of real Ledger data;
+- production migration of real Ledger data;
 - real remote pull/restore or stale-writer conflict protection;
 - external event observation;
 - email/calendar integration;
@@ -74,7 +75,7 @@ The fixed anchor date and synthetic content are test fixtures, not product behav
 
 ## Verification
 
-See [RESULT.md](RESULT.md) for the functional prototype and [RELIABILITY.md](RELIABILITY.md) for the reliability contract.
+See [RESULT.md](RESULT.md) for the functional prototype, [RELIABILITY.md](RELIABILITY.md) for the reliability contract, and [../ledger-import-v1/RESULT.md](../ledger-import-v1/RESULT.md) for the incumbent Ledger conversion bridge.
 
 Reproducible reliability checks:
 
