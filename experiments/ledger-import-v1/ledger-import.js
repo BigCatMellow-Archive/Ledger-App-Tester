@@ -158,7 +158,7 @@
       report.warnings.push({kind:'multiple-active',message:`${active.length} source items were ACTIVE; the most recently touched one is selected as Focus and ${active.length-1} additional active item(s) are placed in Inbox for explicit triage.`});
     }
 
-    const supportingRecords=
+    const supportingRecords={
       projects:arr(source.projects).map(p=>({
         id:String(p.id||''),title:text(p.title),description:text(p.description),mode:String(p.mode||''),framing:p.framing&&typeof p.framing==='object'?p.framing:{},links:arr(p.links)
       })),
