@@ -8,6 +8,7 @@ const esc = value => String(value ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;',
 const atDays = n => new Date(ANCHOR.getTime() + n * DAY).toISOString();
 const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`;
 const toTime = v => { const n = new Date(v || '').getTime(); return Number.isFinite(n) ? n : null; };
+const Reliability = globalThis.SignalPullReliability;
 
 function seedCommitment(id, overrides={}) {
   return {id,title:`Commitment ${id}`,scope:'General',workState:'OPEN',attentionState:'NEXT',createdAt:atDays(-30),updatedAt:atDays(-1),lastSeenAt:atDays(-1),materialChangedAt:atDays(-1),nextAction:'Continue',waitingOn:[],disposition:'',reviewAt:null,parkedUntil:null,dueAt:null,userPinned:false,returnPoint:null,...overrides};
@@ -24,11 +25,33 @@ function seedState() {
   for(let i=1;i<=15;i++) commitments.push(seedCommitment(`waiting-${i}`,{title:`Waiting commitment ${i}`,scope:i%2?'School':'Home',attentionState:'WAITING',reviewAt:atDays(5+i),disposition:`Review ${new Date(toTime(atDays(5+i))).toLocaleDateString()}`}));
   for(let i=1;i<=15;i++) commitments.push(seedCommitment(`parked-${i}`,{title:`Parked commitment ${i}`,scope:i%2?'Projects':'Personal',attentionState:'PARKED',parkedUntil:atDays(10+i),disposition:`Wake ${new Date(toTime(atDays(10+i))).toLocaleDateString()}`}));
   while(commitments.length<100){const i=commitments.length+1;commitments.push(seedCommitment(`routine-${i}`,{title:`Routine commitment ${i}`,scope:['School','Home','Projects','Personal'][i%4],updatedAt:atDays(-.5),lastSeenAt:atDays(-.5),materialChangedAt:atDays(-.5)}));}
-  return {commitments,focusId:'active-return-point',createdAt:ANCHOR.toISOString(),localSave:'saved',externalSave:'not configured'};
+  return {schemaVersion:1,commitments,focusId:'active-return-point',createdAt:ANCHOR.toISOString(),localSave:'saved',externalSave:'not configured'};
 }
-function loadState(){try{const raw=localStorage.getItem(STORAGE_KEY);return raw?JSON.parse(raw):seedState()}catch(e){return seedState()}}
+let corruptRaw='';
+let recoveryIssue='';
+let storageIssue='';
+function recoveryState(){return {schemaVersion:1,commitments:[],focusId:'',createdAt:ANCHOR.toISOString(),localSave:'recovery required',externalSave:'not configured'}}
+function loadState(){
+  corruptRaw='';recoveryIssue='';storageIssue='';
+  let raw='';
+  try{raw=localStorage.getItem(STORAGE_KEY)||''}catch(e){const seeded=seedState();seeded.localSave='memory only';storageIssue='Browser storage is unavailable. Changes in this session are not durable.';return seeded}
+  if(!raw)return seedState();
+  const parsed=Reliability.parseStateText(raw);
+  if(!parsed.ok){corruptRaw=raw;recoveryIssue=`${parsed.error}: ${parsed.detail||'stored state could not be validated'}`;return recoveryState()}
+  parsed.state.schemaVersion=parsed.state.schemaVersion||1;parsed.state.localSave='saved';parsed.state.externalSave=parsed.state.externalSave||'not configured';return parsed.state;
+}
 let state=loadState();
-function persist(message=''){state.localSave='saved';try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){state.localSave='memory only'}renderAll();if(message)toast(message)}
+function persist(message=''){
+  if(recoveryIssue){toast('Recovery is required before changes can be saved.');renderAll();return false}
+  state.localSave='saved';
+  try{
+    const encoded=JSON.stringify(state);
+    localStorage.setItem(STORAGE_KEY,encoded);
+    if(localStorage.getItem(STORAGE_KEY)!==encoded)throw new Error('local save verification failed');
+    storageIssue='';
+  }catch(e){state.localSave='memory only';storageIssue='Local save failed. Changes are only held in this browser session.'}
+  renderAll();if(message)toast(message);return state.localSave==='saved';
+}
 function byId(id){return state.commitments.find(c=>c.id===id)}
 function dependencyState(c){if(!c.waitingOn?.length)return {waiting:false,released:false};const deps=c.waitingOn.map(byId);return {waiting:deps.some(d=>!d||d.workState!=='DONE'),released:deps.length>0&&deps.every(d=>d?.workState==='DONE')}}
 function returnStale(c){return !!(c.returnPoint?.updatedAt&&c.materialChangedAt&&toTime(c.materialChangedAt)>toTime(c.returnPoint.updatedAt))}
@@ -52,9 +75,12 @@ function quietCommitments(){return state.commitments.filter(c=>c.workState!=='DO
 function missingDisposition(){return quietCommitments().filter(c=>!c.reviewAt&&!c.parkedUntil&&!(c.waitingOn||[]).length&&!c.disposition)}
 function activeCount(){return state.commitments.filter(c=>c.workState==='ACTIVE'||c.attentionState==='NOW').length}
 function wakeText(c){if(c.workState==='ACTIVE'||c.attentionState==='NOW')return 'Active — no wake rule required';if(c.reviewAt)return `Review ${new Date(c.reviewAt).toLocaleDateString()}`;if(c.parkedUntil)return `Wake ${new Date(c.parkedUntil).toLocaleDateString()}`;if(c.waitingOn?.length)return `Dependency: ${c.waitingOn.join(', ')}`;return c.disposition||'No wake path';}
-function renderSummary(){const sig=signals();$('systemSummary').textContent=`${sig.length} signals · active ${activeCount()}/3 · ${state.commitments.length} holdings · local ${state.localSave} · external ${state.externalSave}`}
+function renderSummary(){const sig=signals();const systemCount=systemReliabilityIssues().length;$('systemSummary').textContent=`${sig.length+systemCount} signals · active ${activeCount()}/3 · ${state.commitments.length} holdings · local ${state.localSave} · external ${state.externalSave}`}
+function systemReliabilityIssues(){const issues=[];const missing=missingDisposition().length;if(missing)issues.push({title:'Quiet work has no wake path',body:`${missing} unfinished quiet commitment${missing===1?'':'s'} can disappear from attention without a resurfacing rule.`,action:'holdings'});if(state.localSave!=='saved')issues.push({title:'Local durability is degraded',body:storageIssue||recoveryIssue||`Local save status: ${state.localSave}.`,action:'holdings'});return issues}
+function systemSignalHtml(issue){return `<article class="system-signal"><strong>RELIABILITY · ${esc(issue.title)}</strong><p>${esc(issue.body)}</p><button type="button" data-view="${esc(issue.action||'holdings')}">Inspect system state</button></article>`}
+function renderRecoveryBanner(){const el=$('recoveryBanner');if(recoveryIssue){el.hidden=false;el.innerHTML=`<strong>Recovery required — existing local data was not overwritten.</strong><span>${esc(recoveryIssue)}</span><div class="recovery-actions"><button type="button" data-download-raw>Download raw stored data</button><button class="primary" type="button" data-restore-backup>Restore verified backup</button><button type="button" data-reset-state>Reset synthetic test state</button></div>`;return}if(storageIssue){el.hidden=false;el.innerHTML=`<strong>Local durability warning.</strong><span>${esc(storageIssue)}</span>`;return}el.hidden=true;el.innerHTML=''}
 function actionLabel(c,reason){if(reason.includes('review'))return 'Decide';if(reason.includes('material')||reason.includes('stale'))return 'Inspect';if(c.workState==='ACTIVE'||reason.includes('pinned'))return 'Resume';return 'Pull'}
-function renderSignals(){const sig=signals();$('signalCount').textContent=`${sig.length} SIGNALS`;$('signalsList').innerHTML=sig.length?sig.map(({c,reasons})=>{const [label,mark,tone]=signalKind(reasons[0]);return `<article class="signal-row ${tone}"><div class="signal-type">${esc(label)}<strong>${esc(mark)}</strong></div><div class="signal-copy"><h3>${esc(c.title)}</h3><p>${esc(signalDescription(c,reasons))}</p><small>Why now: ${esc(reasons.join(' · '))}</small></div><button class="signal-action" type="button" data-pull="${esc(c.id)}">${esc(actionLabel(c,reasons[0]))}</button></article>`}).join(''):`<div class="empty-state"><strong>Nothing needs attention.</strong><br>Stable holdings remain quiet. You can inspect them at any time.</div>`;
+function renderSignals(){const sig=signals();const systemIssues=systemReliabilityIssues();$('signalCount').textContent=`${sig.length+systemIssues.length} SIGNALS`;const systemHtml=systemIssues.map(systemSignalHtml).join('');$('signalsList').innerHTML=systemHtml+(sig.length?sig.map(({c,reasons})=>{const [label,mark,tone]=signalKind(reasons[0]);return `<article class="signal-row ${tone}"><div class="signal-type">${esc(label)}<strong>${esc(mark)}</strong></div><div class="signal-copy"><h3>${esc(c.title)}</h3><p>${esc(signalDescription(c,reasons))}</p><small>Why now: ${esc(reasons.join(' · '))}</small></div><button class="signal-action" type="button" data-pull="${esc(c.id)}">${esc(actionLabel(c,reasons[0]))}</button></article>`}).join(''):(systemIssues.length?'':`<div class="empty-state"><strong>Nothing needs attention.</strong><br>Stable holdings remain quiet. You can inspect them at any time.</div>`));
   const decisions=sig.filter(x=>x.reasons.some(r=>r.includes('review')||r.includes('stale')));$('decisionCount').textContent=`${decisions.length} OPEN`;$('decisionList').innerHTML=decisions.length?decisions.map(({c,reasons})=>decisionHtml(c,reasons)).join(''):`<div class="empty-state">No decisions are waiting.</div>`;
   $('quietSummary').textContent=`${quietCommitments().length} unfinished commitments are intentionally quiet. ${missingDisposition().length?'Some are missing a wake/disposition path.':'Every quiet item has an inspectable wake/disposition path.'}`;
 }
@@ -63,7 +89,7 @@ function decisionHtml(c,reasons){if(reasons.some(r=>r.includes('review')))return
 function renderFocus(){const c=byId(state.focusId);if(!c||c.workState==='DONE'){$('focusContent').innerHTML=`<div class="focus-shell"><div class="focus-status"><span>FOCUS</span><span>NO CURRENT PULL</span></div><h1 id="focusTitle" class="focus-title" tabindex="-1">Nothing is in focus.</h1><p>Select Pull or Resume from a signal, or return to Signals.</p><div class="focus-actions"><button class="primary" type="button" data-view="signals">Open signals</button></div></div>`;return}
  const why=reasons(c);$('focusContent').innerHTML=`<div class="focus-shell"><div class="focus-status"><span>FOCUS · ACTIVE</span><span>${esc(c.scope||'Unscoped')}</span></div><h1 id="focusTitle" class="focus-title" tabindex="-1">${esc(c.title)}</h1><div class="focus-reason">Why this is here: ${esc((why.length?why:['explicit pull']).join(' · '))}</div><div class="return-point"><label for="returnSummary">Where you stopped</label><textarea id="returnSummary" rows="3">${esc(c.returnPoint?.summary||'')}</textarea><label for="returnNext">Next move</label><input id="returnNext" value="${esc(c.returnPoint?.nextAction||c.nextAction||'')}"><label for="returnUnresolved">Unresolved / watch for</label><input id="returnUnresolved" value="${esc(c.returnPoint?.unresolved||'')}"><button type="button" data-save-return="${esc(c.id)}">Save return point</button></div><div class="focus-next">${esc(c.returnPoint?.nextAction||c.nextAction||'Define the next concrete move.')}</div><div class="focus-actions"><button class="primary" type="button" data-done="${esc(c.id)}">Complete</button><button type="button" data-wait="${esc(c.id)}">Pause 2 days</button><button type="button" data-park="${esc(c.id)}">Park 7 days</button><button type="button" data-view="signals">Back to signals</button></div><div class="focus-meta"><div><span>Work state</span><p>${esc(c.workState)}</p></div><div><span>Attention state</span><p>${esc(c.attentionState)}</p></div><div><span>Wake / disposition</span><p>${esc(wakeText(c))}</p></div></div><details><summary>Context and provenance</summary><p>Created ${new Date(c.createdAt).toLocaleDateString()} · last material change ${new Date(c.materialChangedAt).toLocaleDateString()}.</p><p>This experiment keeps exhaustive history behind the working surface rather than treating it as the working surface.</p></details></div>`}
 function renderHoldings(filter=''){const q=filter.trim().toLowerCase();const list=state.commitments.filter(c=>!q||[c.title,c.scope,c.workState,c.attentionState,wakeText(c)].join(' ').toLowerCase().includes(q));const missing=missingDisposition();$('holdingsWarning').hidden=!missing.length;$('holdingsWarning').textContent=missing.length?`${missing.length} unfinished quiet commitments have no wake/disposition path.`:'';$('holdingsList').innerHTML=list.map(c=>`<article class="holding-row"><div><strong>${esc(c.title)}</strong><small>${esc(c.scope||'Unscoped')}</small></div><span class="state-label">${esc(c.workState)} · ${esc(c.attentionState||'AUTO')}</span><div class="wake-rule">${esc(wakeText(c))}</div><div class="holding-actions"><button type="button" data-pull="${esc(c.id)}">Open</button></div></article>`).join('')}
-function renderAll(){renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'')}
+function renderAll(){renderRecoveryBanner();renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'')}
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.hidden=true);const el=$(`${name}View`)||$('signalsView');el.hidden=false;window.scrollTo(0,0);const h=el.querySelector('h1');setTimeout(()=>h?.focus({preventScroll:true}),0)}
 function pull(id){const c=byId(id);if(!c)return;if(activeCount()>=3&&c.workState!=='ACTIVE'){toast('Active capacity is full. Resolve or pause current work first.');return}if(dependencyState(c).released)c.waitingOn=[];c.reviewAt=null;c.parkedUntil=null;c.disposition='';c.workState='ACTIVE';c.attentionState='NOW';c.userPinned=true;c.updatedAt=ANCHOR.toISOString();state.focusId=id;persist(`Pulled “${c.title}” into focus.`);showView('focus')}
 function waitTwoDays(id){const c=byId(id);if(!c)return;c.workState='OPEN';c.attentionState='WAITING';c.reviewAt=atDays(2);c.parkedUntil=null;c.userPinned=false;c.disposition='Review in 2 days';c.waitingOn=[];c.updatedAt=ANCHOR.toISOString();if(state.focusId===id)state.focusId='';persist(`Waiting until ${new Date(c.reviewAt).toLocaleDateString()}.`);showView('signals')}
@@ -73,8 +99,29 @@ function clearSeen(id){const c=byId(id);if(!c)return;c.lastSeenAt=c.materialChan
 function saveReturn(id){const c=byId(id);if(!c)return;c.returnPoint={summary:$('returnSummary').value.trim(),nextAction:$('returnNext').value.trim(),unresolved:$('returnUnresolved').value.trim(),updatedAt:ANCHOR.toISOString()};c.nextAction=c.returnPoint.nextAction;c.updatedAt=ANCHOR.toISOString();persist('Return point saved.');showView('focus')}
 function toast(message){const t=$('toast');t.textContent=message;t.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.hidden=true,3200)}
 
-document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.view)return showView(b.dataset.view);if(b.dataset.pull)return pull(b.dataset.pull);if(b.dataset.wait)return waitTwoDays(b.dataset.wait);if(b.dataset.park)return parkSevenDays(b.dataset.park);if(b.dataset.done)return complete(b.dataset.done);if(b.dataset.clear)return clearSeen(b.dataset.clear);if(b.dataset.saveReturn)return saveReturn(b.dataset.saveReturn)});
+function downloadText(filename,text,type='application/json'){
+  const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function exportBackup(){
+  try{const envelope=Reliability.makeBackupEnvelope(state,new Date().toISOString());downloadText(`signal-pull-backup-${new Date().toISOString().slice(0,10)}.json`,JSON.stringify(envelope,null,2));toast('Backup exported.')}catch(e){toast(`Backup failed: ${e.message}`)}
+}
+function downloadCorruptRaw(){if(!corruptRaw)return;downloadText('signal-pull-unreadable-local-data.txt',corruptRaw,'text/plain');toast('Raw stored data downloaded without modification.')}
+function requestRestore(){$('restoreInput').click()}
+async function restoreBackup(file){
+  if(!file)return;let text='';try{text=await file.text()}catch(e){toast('Could not read backup file.');return}
+  const parsed=Reliability.parseBackupText(text);if(!parsed.ok){toast(`Restore rejected: ${parsed.error}.`);return}
+  if(!recoveryIssue&&!confirm('Replace the current Signal + Pull test state with this verified backup?'))return;
+  state=parsed.state;state.schemaVersion=state.schemaVersion||1;state.localSave='saved';state.externalSave=state.externalSave||'not configured';corruptRaw='';recoveryIssue='';storageIssue='';
+  persist('Verified backup restored.');showView('signals');
+}
+function resetSyntheticState(){
+  if(!confirm('Reset this experiment to the synthetic 100-commitment fixture? Existing local experiment data will be replaced.'))return;
+  try{localStorage.removeItem(STORAGE_KEY)}catch(e){}corruptRaw='';recoveryIssue='';storageIssue='';state=seedState();persist('Synthetic test state restored.');showView('signals');
+}
+
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-export-backup'))return exportBackup();if(b.hasAttribute('data-restore-backup'))return requestRestore();if(b.hasAttribute('data-download-raw'))return downloadCorruptRaw();if(b.hasAttribute('data-reset-state'))return resetSyntheticState();if(b.dataset.view)return showView(b.dataset.view);if(b.dataset.pull)return pull(b.dataset.pull);if(b.dataset.wait)return waitTwoDays(b.dataset.wait);if(b.dataset.park)return parkSevenDays(b.dataset.park);if(b.dataset.done)return complete(b.dataset.done);if(b.dataset.clear)return clearSeen(b.dataset.clear);if(b.dataset.saveReturn)return saveReturn(b.dataset.saveReturn)});
 $('holdingsSearch').addEventListener('input',e=>renderHoldings(e.target.value));
+$('restoreInput').addEventListener('change',async e=>{const file=e.target.files?.[0];e.target.value='';await restoreBackup(file)});
 $('captureForm').addEventListener('submit',e=>{e.preventDefault();const title=$('captureTitleInput').value.trim();if(!title)return;const c=seedCommitment(uid('capture'),{title,scope:$('captureScopeInput').value.trim()||'Inbox',attentionState:'INBOX',nextAction:$('captureNextInput').value.trim(),createdAt:ANCHOR.toISOString(),updatedAt:ANCHOR.toISOString(),lastSeenAt:ANCHOR.toISOString(),materialChangedAt:ANCHOR.toISOString()});state.commitments.unshift(c);e.target.reset();persist(`Captured “${title}” to Inbox.`);showView('signals')});
 
 renderAll();showView('signals');
