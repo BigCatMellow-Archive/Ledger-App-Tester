@@ -1,6 +1,6 @@
 # Signal + Pull V1
 
-- State: isolated functional prototype
+- State: isolated functional prototype / reliability contract hardened
 - Parent selection: [../architecture-search/README.md](../architecture-search/README.md)
 - Mechanics evidence: [../attention-engine-v1/RESULT.md](../attention-engine-v1/RESULT.md)
 - Incumbent V4 archive branch: `archive/v4-chronicle-2026-09-22`
@@ -46,7 +46,11 @@ The experiment seeds a fixed 100-commitment workload anchored to `2026-09-22T13:
 - warning for quiet unfinished work with no wake/disposition path;
 - truthful zero-signal state;
 - low-friction Inbox capture;
-- local save-status truth with explicit external-save status.
+- local save-status truth with explicit external-save status;
+- dedicated Reliability view separating local durability, external recovery, quiet-work integrity, and snapshot format;
+- validated JSON snapshot export/import;
+- corruption recovery that preserves raw unreadable data and blocks normal editing instead of silently reseeding;
+- regression tests for snapshot format and app recovery behavior.
 
 ## Important boundaries
 
@@ -55,6 +59,7 @@ This is not a production schema.
 The prototype does **not** yet include:
 
 - migration/import of real Ledger data;
+- real remote pull/restore or stale-writer conflict protection;
 - external event observation;
 - email/calendar integration;
 - cloud synchronization;
@@ -67,6 +72,15 @@ The fixed anchor date and synthetic content are test fixtures, not product behav
 
 ## Verification
 
-See [RESULT.md](RESULT.md).
+See [RESULT.md](RESULT.md) for the functional prototype and [RELIABILITY.md](RELIABILITY.md) for the reliability contract.
 
-The exact committed `index.html`, `style.css`, and `app.js` were fetched back from GitHub and matched the locally tested files by character length + FNV-1a fingerprint.
+Reproducible reliability checks:
+
+```text
+node state-io.test.js
+node reliability-contract.test.js
+```
+
+The reliability branch passed 6/6 snapshot-format tests and 8/8 app corruption/import contract tests. `.github/workflows/test-signal-pull-reliability.yml` preserves these as regression checks.
+
+The current production Ledger one-way GitHub snapshot is documented as backup evidence, not sufficient clean-browser restore or multi-device synchronization.
