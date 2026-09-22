@@ -1,0 +1,51 @@
+name: Test Organization Research Suite
+
+on:
+  push:
+    paths:
+      - 'experiments/attention-engine-v1/**'
+      - 'experiments/signal-pull-v1/**'
+      - 'experiments/ranking-v1/**'
+      - 'docs/LEDGER-ORGANIZATION-ROADMAP-2026-09-22.md'
+  pull_request:
+    paths:
+      - 'experiments/attention-engine-v1/**'
+      - 'experiments/signal-pull-v1/**'
+      - 'experiments/ranking-v1/**'
+      - 'docs/LEDGER-ORGANIZATION-ROADMAP-2026-09-22.md'
+
+jobs:
+  organization-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check JavaScript syntax
+        run: |
+          node --check experiments/attention-engine-v1/attention-engine.js
+          node --check experiments/attention-engine-v1/fixtures.js
+          node --check experiments/attention-engine-v1/attention-engine.test.js
+          node --check experiments/signal-pull-v1/app.js
+          node --check experiments/signal-pull-v1/state-io.js
+          node --check experiments/signal-pull-v1/signal-policy.js
+          node --check experiments/signal-pull-v1/state-io.test.js
+          node --check experiments/signal-pull-v1/reliability-contract.test.js
+          node --check experiments/signal-pull-v1/signal-policy.test.js
+          node --check experiments/signal-pull-v1/signal-contract.test.js
+          node --check experiments/ranking-v1/ranking.js
+          node --check experiments/ranking-v1/fixtures.js
+          node --check experiments/ranking-v1/ranking.test.js
+      - name: Test attention mechanics
+        run: node experiments/attention-engine-v1/attention-engine.test.js
+      - name: Test snapshot IO
+        run: node experiments/signal-pull-v1/state-io.test.js
+      - name: Test corruption and import contract
+        run: node experiments/signal-pull-v1/reliability-contract.test.js
+      - name: Test material signal policy
+        run: node experiments/signal-pull-v1/signal-policy.test.js
+      - name: Test Focus and Inbox separation
+        run: node experiments/signal-pull-v1/signal-contract.test.js
+      - name: Test ranking experiment
+        run: node experiments/ranking-v1/ranking.test.js
