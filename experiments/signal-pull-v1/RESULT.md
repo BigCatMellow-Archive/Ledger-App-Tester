@@ -115,3 +115,37 @@ The seeded fixture proves deterministic behavior against known conditions. It do
 `CONTINUE` to reliability hardening.
 
 Do not integrate this into the production Ledger repo yet. Keep V4 available for direct comparison while the tester explores the new model.
+
+
+## Subsequent pre-independent challenge correction — 2026-09-22
+
+The Phase 3 rendered pass accurately recorded the prototype at that time: five items appeared in the Signal list, including the unchanged active return point.
+
+A later adversarial review identified two semantic drifts:
+
+1. **unchanged current Focus was being represented twice** — once as the current carried work and again as a material Signal;
+2. **plain Inbox capture immediately generated one Signal per captured item**, which could turn low-friction capture into attention noise.
+
+The corrected contract is now:
+
+~~~text
+FOCUS
+current carried work; always recoverable separately
+
+INBOX
+captured but not yet triaged; visible as an intake count and retrievable on demand
+
+SIGNALS
+only material conditions such as due windows, expired reviews,
+dependency releases, stale return points, or material changes
+~~~
+
+A new `signal-policy.js` mechanically excludes `user pinned`, `active return point`, and `untriaged` as signal reasons **unless another material reason also exists**.
+
+Reproduced checks:
+
+- `signal-policy.test.js`: 7/7 PASS;
+- `signal-contract.test.js`: 9/9 PASS;
+- `app.js`, `state-io.js`, and `signal-policy.js` syntax: PASS.
+
+The synthetic default therefore contains **four material signals**, while the active return point remains visible through the Current Focus strip.
