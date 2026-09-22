@@ -54,8 +54,12 @@ test('ACTIVE maps to NOW and gets a conservative generated return point',()=>{
   assert.equal(c.userPinned,true);
 });
 
-test('most recently touched ACTIVE item becomes Focus while multiple-active warning remains',()=>{
+test('most recently touched ACTIVE item becomes Focus while additional ACTIVE items require triage',()=>{
   assert.equal(converted.state.focusId,bySource('active1').id);
+  assert.equal(converted.report.sourceActiveItems,2);
+  assert.equal(bySource('active2').workState,'OPEN');
+  assert.equal(bySource('active2').attentionState,'INBOX');
+  assert.match(bySource('active2').disposition,/requires explicit triage/);
   assert.ok(converted.report.warnings.some(w=>w.kind==='multiple-active'));
 });
 
