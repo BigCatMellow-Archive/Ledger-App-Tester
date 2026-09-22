@@ -370,19 +370,24 @@ Checkpoint:
 
 Only after deterministic routing passes.
 
+Result: ranking was explicitly separated from surfacing. The attention engine fixes the visible material set first; ranking only changes presentation order among already-visible items.
+
 Compare:
 
 A. explicit rule/state ordering;
 B. user-authored ordering;
 C. hybrid suggestions;
-D. AI ranking, only if there is a remaining measurable gap.
+D. AI ranking, only if there is a remaining measurable gap. **Not run: the preceding comparison did not establish a gap large enough to justify it.**
 
-- [ ] Freeze identical fixture inputs.
-- [ ] Compare missed attention items.
-- [ ] Compare irrelevant surfaced items.
-- [ ] Compare explanation quality.
-- [ ] Compare correction/override cost.
-- [ ] Reject AI ranking if added complexity does not produce a material improvement.
+- [x] Freeze identical fixture inputs.
+- [x] Compare missed attention items.
+- [x] Compare irrelevant surfaced items.
+- [x] Compare explanation quality.
+- [x] Compare correction/override cost.
+- [x] Reject AI ranking if added complexity does not produce a material improvement.
+
+Checkpoint:
+- **STOP RANKING ESCALATION — 2026-09-22.** Nine frozen scenarios compared deterministic, explicit user ordering, and a guarded hybrid. Deterministic required no preference metadata but disagreed with local stated order in some cases; manual/hybrid improved fit only by adding 19 user-order values and introduced stale-priority or authority risks. An adversarial case showed that even an overdue item can require guaranteed visibility without warranting forced first position. Because every material item is already surfaced and the user can Pull any visible signal, AI ranking was not earned. Keep transparent deterministic ordering plus direct human choice; revisit only if real use produces a measurable ordering burden. Evidence: [Ranking V1 result](../experiments/ranking-v1/RESULT.md).
 
 ## Phase 6 — Independent review and promotion decision
 
@@ -418,6 +423,6 @@ A reviewer should specifically ask:
 
 ## Current project decision
 
-Proceed to **Phase 5 — ranking experiment** inside the tester. Deterministic routing remains the baseline. Compare it against user-authored and hybrid ordering using frozen scenarios; only test AI ranking if a measurable gap remains. Do not add AI merely because it is available.
+Proceed to **Phase 6 — independent review and promotion decision** for the tester research arc. Ranking escalation is closed unless real use later demonstrates a material ordering problem.
 
-External restore/conflict-safe synchronization remains a named production-level dependency, not a reason to block further tester product experiments.
+The review must challenge the selected Signal + Pull direction rather than assume newer is better, reproduce the fixed mechanics/reliability/ranking evidence, and compare against the preserved V4 incumbent. External restore/conflict-safe synchronization remains a named production-level dependency and blocks any universal 'safe to forget' durability claim.
