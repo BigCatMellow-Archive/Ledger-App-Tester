@@ -414,20 +414,20 @@ Goal: test whether Signal + Pull remains useful when fed incumbent Ledger-shaped
 
 ### Work
 
-- [ ] Define an additive Ledger-snapshot → Signal + Pull conversion contract.
-- [ ] Map projects/items into architecture-neutral commitments without requiring project-first navigation.
-- [ ] Preserve project/source metadata as provenance and optional scope.
-- [ ] Convert ACTIVE work into Focus/return-point candidates where evidence exists.
-- [ ] Convert BLOCKED/dependency-bearing work conservatively; do not invent review dates.
-- [ ] Convert DONE work to quiet historical commitments.
-- [ ] Convert notes/journal/history as supporting provenance rather than default attention items unless explicitly actionable.
-- [ ] Detect and report ambiguous/unmapped source records.
-- [ ] Add fixed incumbent-shaped fixtures and reproducible conversion tests.
-- [ ] Add import path to the tester only after pure conversion tests pass.
+- [x] Define an additive Ledger-snapshot → Signal + Pull conversion contract.
+- [x] Map projects/items into architecture-neutral commitments without requiring project-first navigation.
+- [x] Preserve project/source metadata as provenance and optional scope.
+- [x] Convert ACTIVE work into Focus/return-point candidates where evidence exists.
+- [x] Convert BLOCKED/dependency-bearing work conservatively; do not invent review dates.
+- [x] Convert DONE work to quiet historical commitments.
+- [x] Convert notes/journal/history as supporting provenance rather than default attention items unless explicitly actionable.
+- [x] Detect and report ambiguous/unmapped source records.
+- [x] Add fixed incumbent-shaped fixtures and reproducible conversion tests.
+- [x] Add import path to the tester only after pure conversion tests pass.
 - [ ] Compare the converted workload in Signal + Pull against preserved V4 using the same source snapshot.
 
 Checkpoint:
-- continue only if conversion preserves source traceability and does not create false signals/wake rules from missing information.
+- **TECHNICAL BRIDGE PASS — 2026-09-22.** Converter tests pass 14/14 and preview/apply contract passes 12/12. The bridge preserves source traceability, does not mutate the Ledger snapshot, and degrades free-text dependency ambiguity to explicit manual review instead of inventing automatic wake rules. Full existing organization/reliability CI also passed on PR #16 implementation head. The remaining Phase 7 item is a same-snapshot comparison using real Ledger data. Evidence: [Ledger Import V1 result](../experiments/ledger-import-v1/RESULT.md).
 
 ## Review questions retained for later production-grade review
 
@@ -444,6 +444,6 @@ Checkpoint:
 
 ## Current project decision
 
-**CONTINUE TESTER EXPERIMENTATION — 2026-09-22.** Independent review is intentionally deferred by the human owner because this repository is an experiment lab. The next evidence gap is realistic incumbent-shaped data, not additional self-review.
+**CONTINUE TESTER EXPERIMENTATION — 2026-09-22.** Independent review is intentionally deferred by the human owner because this repository is an experiment lab. The realistic-data bridge is technically ready; the next evidence gap is a same-snapshot comparison using the user's real Ledger export in preserved V4 versus Signal + Pull.
 
 External restore/conflict-safe synchronization remains a named production-level dependency and still blocks any universal “safe to forget” durability claim.
