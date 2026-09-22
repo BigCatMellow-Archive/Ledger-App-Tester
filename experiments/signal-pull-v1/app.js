@@ -91,8 +91,43 @@ function decisionHtml(c,reasons){if(reasons.some(r=>r.includes('review')))return
 function renderFocus(){const c=byId(state.focusId);if(!c||c.workState==='DONE'){$('focusContent').innerHTML=`<div class="focus-shell"><div class="focus-status"><span>FOCUS</span><span>NO CURRENT PULL</span></div><h1 id="focusTitle" class="focus-title" tabindex="-1">Nothing is in focus.</h1><p>Select Pull or Resume from a signal, or return to Signals.</p><div class="focus-actions"><button class="primary" type="button" data-view="signals">Open signals</button></div></div>`;return}
  const why=reasons(c);$('focusContent').innerHTML=`<div class="focus-shell"><div class="focus-status"><span>FOCUS · ACTIVE</span><span>${esc(c.scope||'Unscoped')}</span></div><h1 id="focusTitle" class="focus-title" tabindex="-1">${esc(c.title)}</h1><div class="focus-reason">Why this is here: ${esc((why.length?why:['explicit pull']).join(' · '))}</div><div class="return-point"><label for="returnSummary">Where you stopped</label><textarea id="returnSummary" rows="3">${esc(c.returnPoint?.summary||'')}</textarea><label for="returnNext">Next move</label><input id="returnNext" value="${esc(c.returnPoint?.nextAction||c.nextAction||'')}"><label for="returnUnresolved">Unresolved / watch for</label><input id="returnUnresolved" value="${esc(c.returnPoint?.unresolved||'')}"><button type="button" data-save-return="${esc(c.id)}">Save return point</button></div><div class="focus-next">${esc(c.returnPoint?.nextAction||c.nextAction||'Define the next concrete move.')}</div><div class="focus-actions"><button class="primary" type="button" data-done="${esc(c.id)}">Complete</button><button type="button" data-wait="${esc(c.id)}">Pause 2 days</button><button type="button" data-park="${esc(c.id)}">Park 7 days</button><button type="button" data-view="signals">Back to signals</button></div><div class="focus-meta"><div><span>Work state</span><p>${esc(c.workState)}</p></div><div><span>Attention state</span><p>${esc(c.attentionState)}</p></div><div><span>Wake / disposition</span><p>${esc(wakeText(c))}</p></div></div><details><summary>Context and provenance</summary><p>Created ${new Date(c.createdAt).toLocaleDateString()} · last material change ${new Date(c.materialChangedAt).toLocaleDateString()}.</p><p>This experiment keeps exhaustive history behind the working surface rather than treating it as the working surface.</p></details></div>`}
 function renderHoldings(filter=''){const q=filter.trim().toLowerCase();const list=state.commitments.filter(c=>!q||[c.title,c.scope,c.workState,c.attentionState,wakeText(c)].join(' ').toLowerCase().includes(q));const missing=missingDisposition();$('holdingsWarning').hidden=!missing.length;$('holdingsWarning').textContent=missing.length?`${missing.length} unfinished quiet commitments have no wake/disposition path.`:'';$('holdingsList').innerHTML=list.map(c=>`<article class="holding-row"><div><strong>${esc(c.title)}</strong><small>${esc(c.scope||'Unscoped')}</small></div><span class="state-label">${esc(c.workState)} · ${esc(c.attentionState||'AUTO')}</span><div class="wake-rule">${esc(wakeText(c))}</div><div class="holding-actions"><button type="button" data-pull="${esc(c.id)}">Open</button></div></article>`).join('')}
-function renderAll(){renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'')}
-function showView(name){document.querySelectorAll('.view').forEach(v=>v.hidden=true);const el=$(`${name}View`)||$('signalsView');el.hidden=false;window.scrollTo(0,0);const h=el.querySelector('h1');setTimeout(()=>h?.focus({preventScroll:true}),0)}
+function renderReliability(){
+  const missing=missingDisposition();
+  const external=state.externalSave||'not configured';
+  const local=state.localSave||'unknown';
+  const externalRecovery=/not configured/i.test(external)?'No cross-device restore path':'External state recorded';
+  $('reliabilityContent').innerHTML=[
+    '<div class="reliability-grid">',
+    '<section class="reliability-item"><h2>Local browser state</h2><strong>'+esc(local)+'</strong><p>Material changes are written to this browser. A write failure changes this status to memory only.</p></section>',
+    '<section class="reliability-item"><h2>External recovery</h2><strong>'+esc(externalRecovery)+'</strong><p>Current external state: '+esc(external)+'. This prototype does not claim cloud recovery when none is configured.</p></section>',
+    '<section class="reliability-item"><h2>Quiet-work integrity</h2><strong>'+(missing.length?esc(String(missing.length))+' defects':'PASS')+'</strong><p>'+(missing.length?'Unfinished quiet commitments lack a wake/disposition path.':'Every unfinished quiet commitment currently has an inspectable return path.')+'</p></section>',
+    '<section class="reliability-item"><h2>Snapshot format</h2><strong>v'+esc(SignalStateIO.SNAPSHOT_VERSION)+'</strong><p>'+state.commitments.length+' commitments. Import validates structure and duplicate IDs before replacing current state.</p></section>',
+    '</div>',
+    '<div class="reliability-actions"><button class="primary" type="button" data-export-snapshot>Export JSON snapshot</button><button type="button" data-import-snapshot>Import JSON snapshot</button><button type="button" data-reset-fixture>Reset synthetic fixture</button></div>',
+    '<p class="reliability-note">Recovery rule: unreadable local state is preserved and blocks normal operation until the user exports the raw record, imports a known-good snapshot, or explicitly resets the fixture. The system must never silently replace corrupt durable state with a fresh empty/default state.</p>',
+    loadError?'<div class="system-warning">'+esc(loadError)+'</div>':''
+  ].join('');
+}
+function renderRecovery(){
+  document.querySelectorAll('.view').forEach(v=>v.hidden=true);
+  $('recoveryView').hidden=false;
+  $('recoveryError').textContent=loadError||'The local snapshot could not be read safely.';
+  $('systemSummary').textContent='local data needs recovery · normal editing blocked';
+  document.querySelectorAll('.nav button').forEach(b=>b.disabled=true);
+  setTimeout(()=>$('recoveryTitle')?.focus({preventScroll:true}),0);
+}
+function renderAll(){
+  if(!state){renderRecovery();return}
+  document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
+  renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();
+}
+function showView(name){
+  if(!state&&name!=='recovery'){renderRecovery();return}
+  document.querySelectorAll('.view').forEach(v=>v.hidden=true);
+  const el=$(name+'View')||$('signalsView');
+  el.hidden=false;window.scrollTo(0,0);
+  const h=el.querySelector('h1');setTimeout(()=>h?.focus({preventScroll:true}),0);
+}
 function pull(id){const c=byId(id);if(!c)return;if(activeCount()>=3&&c.workState!=='ACTIVE'){toast('Active capacity is full. Resolve or pause current work first.');return}if(dependencyState(c).released)c.waitingOn=[];c.reviewAt=null;c.parkedUntil=null;c.disposition='';c.workState='ACTIVE';c.attentionState='NOW';c.userPinned=true;c.updatedAt=ANCHOR.toISOString();state.focusId=id;persist(`Pulled “${c.title}” into focus.`);showView('focus')}
 function waitTwoDays(id){const c=byId(id);if(!c)return;c.workState='OPEN';c.attentionState='WAITING';c.reviewAt=atDays(2);c.parkedUntil=null;c.userPinned=false;c.disposition='Review in 2 days';c.waitingOn=[];c.updatedAt=ANCHOR.toISOString();if(state.focusId===id)state.focusId='';persist(`Waiting until ${new Date(c.reviewAt).toLocaleDateString()}.`);showView('signals')}
 function parkSevenDays(id){const c=byId(id);if(!c)return;c.workState='OPEN';c.attentionState='PARKED';c.parkedUntil=atDays(7);c.reviewAt=null;c.userPinned=false;c.disposition='Wake in 7 days';c.waitingOn=[];c.updatedAt=ANCHOR.toISOString();if(state.focusId===id)state.focusId='';persist(`Parked until ${new Date(c.parkedUntil).toLocaleDateString()}.`);showView('signals')}
