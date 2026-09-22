@@ -389,28 +389,47 @@ D. AI ranking, only if there is a remaining measurable gap. **Not run: the prece
 Checkpoint:
 - **STOP RANKING ESCALATION — 2026-09-22.** Nine frozen scenarios compared deterministic, explicit user ordering, and a guarded hybrid. Deterministic required no preference metadata but disagreed with local stated order in some cases; manual/hybrid improved fit only by adding 19 user-order values and introduced stale-priority or authority risks. An adversarial case showed that even an overdue item can require guaranteed visibility without warranting forced first position. Because every material item is already surfaced and the user can Pull any visible signal, AI ranking was not earned. Keep transparent deterministic ordering plus direct human choice; revisit only if real use produces a measurable ordering burden. Evidence: [Ranking V1 result](../experiments/ranking-v1/RESULT.md).
 
-## Phase 6 — Independent review and promotion decision
+## Phase 6 — Independent review / tester waiver
 
-- [x] Implementer adversarial pre-review completed; it found and corrected Focus duplication and Inbox-to-Signal noise. This is explicitly **not** independent review. Evidence: [pre-independent challenge](ORGANIZATION-PRE-INDEPENDENT-CHALLENGE-2026-09-22.md).
-- [x] Fresh independent review packet/prompt preserved for a separate reviewer: [review prompt](FRESH-INDEPENDENT-ORGANIZATION-REVIEW-PROMPT-2026-09-22.md).
-- [ ] Fresh reviewer receives research, model, fixtures, and working tester.
-- [ ] Reviewer attempts to falsify:
-  - safe quiet-state claim;
-  - resurfacing reliability;
-  - global/local separation;
-  - explainability;
-  - storage/recovery trust;
-  - accessibility/mobile repeated use.
-- [ ] Correct review findings.
-- [x] Run final fixed fixture suite. PR #15 GitHub Actions passed the focused Signal + Pull reliability workflow and the full organization suite (attention mechanics, snapshot IO, corruption/import, material-signal policy, Focus/Inbox separation, and ranking experiment).
-- [x] Record residual limitations in the reliability record and pre-independent challenge.
-- [ ] Decide separately whether production promotion is warranted.
+- [x] Implementer adversarial pre-review completed; it found and corrected Focus duplication and Inbox-to-Signal noise. Evidence: [pre-independent challenge](ORGANIZATION-PRE-INDEPENDENT-CHALLENGE-2026-09-22.md).
+- [x] Fresh independent review packet/prompt preserved for later use: [review prompt](FRESH-INDEPENDENT-ORGANIZATION-REVIEW-PROMPT-2026-09-22.md).
+- [x] Final fixed fixture suite passed on the pre-review candidate.
+- [x] Independent review requirement **waived by the human owner for continued tester experimentation on 2026-09-22**.
+- [ ] Independent review remains required before any claim that the research arc is production-validated or before production promotion if the owner later wants that gate restored.
 
-Production promotion is a distinct action and is not implied by passing the tester evaluation.
+This waiver changes the tester stop condition only. It does not convert implementer evidence into independent evidence.
 
-## Review questions
+## Phase 7 — Realistic-data bridge
 
-A reviewer should specifically ask:
+Goal: test whether Signal + Pull remains useful when fed incumbent Ledger-shaped data rather than synthetic commitments.
+
+### Boundary
+
+- tester only;
+- import/convert, never mutate the preserved V4 record;
+- source Ledger snapshot remains untouched;
+- conversion must preserve source IDs/provenance enough to trace every generated commitment;
+- ambiguous fields must be recorded as ambiguous rather than guessed into consequential wake rules;
+- no production migration.
+
+### Work
+
+- [ ] Define an additive Ledger-snapshot → Signal + Pull conversion contract.
+- [ ] Map projects/items into architecture-neutral commitments without requiring project-first navigation.
+- [ ] Preserve project/source metadata as provenance and optional scope.
+- [ ] Convert ACTIVE work into Focus/return-point candidates where evidence exists.
+- [ ] Convert BLOCKED/dependency-bearing work conservatively; do not invent review dates.
+- [ ] Convert DONE work to quiet historical commitments.
+- [ ] Convert notes/journal/history as supporting provenance rather than default attention items unless explicitly actionable.
+- [ ] Detect and report ambiguous/unmapped source records.
+- [ ] Add fixed incumbent-shaped fixtures and reproducible conversion tests.
+- [ ] Add import path to the tester only after pure conversion tests pass.
+- [ ] Compare the converted workload in Signal + Pull against preserved V4 using the same source snapshot.
+
+Checkpoint:
+- continue only if conversion preserves source traceability and does not create false signals/wake rules from missing information.
+
+## Review questions retained for later production-grade review
 
 1. Does this system actually reduce remembering, or merely move remembering into metadata maintenance?
 2. Can any unfinished item become invisible without an explicit reason?
@@ -425,8 +444,6 @@ A reviewer should specifically ask:
 
 ## Current project decision
 
-**BLOCKED AT INDEPENDENT REVIEW — 2026-09-22.** All implementer-owned research, prototype, reliability, signal-semantics, ranking, adversarial pre-review, and regression-suite work is complete. The current operator must not approve its own substantive clean-sheet candidate.
+**CONTINUE TESTER EXPERIMENTATION — 2026-09-22.** Independent review is intentionally deferred by the human owner because this repository is an experiment lab. The next evidence gap is realistic incumbent-shaped data, not additional self-review.
 
-The remaining required review must be performed by a genuinely separate reviewer using [the fresh-review prompt](FRESH-INDEPENDENT-ORGANIZATION-REVIEW-PROMPT-2026-09-22.md). A GitHub Copilot review is technically available, but it may consume paid AI credits depending on organization settings and therefore is not triggered without separate spending authority.
-
-A fresh reviewer must challenge Signal + Pull rather than assume newer is better, reproduce the mechanics/reliability/signal/ranking evidence, and compare against the preserved V4 incumbent. External restore/conflict-safe synchronization remains a named production-level dependency and blocks any universal 'safe to forget' durability claim.
+External restore/conflict-safe synchronization remains a named production-level dependency and still blocks any universal “safe to forget” durability claim.
