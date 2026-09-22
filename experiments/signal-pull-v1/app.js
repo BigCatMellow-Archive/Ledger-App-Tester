@@ -1,6 +1,7 @@
 'use strict';
 
 const STORAGE_KEY = 'signal-pull-v1-state';
+const PRE_LEDGER_IMPORT_BACKUP_KEY = 'signal-pull-v1-pre-ledger-import-backup';
 const DAY = 86400000;
 const ANCHOR = new Date('2026-09-22T13:30:00.000Z');
 const $ = id => document.getElementById(id);
@@ -49,6 +50,7 @@ function loadState(){
   return parsed.state;
 }
 let state=loadState();
+let pendingLedgerImport=null;
 function persist(message=''){
   if(!state)return;
   state.localSave='saved';
@@ -112,9 +114,31 @@ function renderReliability(){
     '<section class="reliability-item"><h2>Quiet-work integrity</h2><strong>'+(missing.length?esc(String(missing.length))+' defects':'PASS')+'</strong><p>'+(missing.length?'Unfinished quiet commitments lack a wake/disposition path.':'Every unfinished quiet commitment currently has an inspectable return path.')+'</p></section>',
     '<section class="reliability-item"><h2>Snapshot format</h2><strong>v'+esc(SignalStateIO.SNAPSHOT_VERSION)+'</strong><p>'+state.commitments.length+' commitments. Import validates structure and duplicate IDs before replacing current state.</p></section>',
     '</div>',
-    '<div class="reliability-actions"><button class="primary" type="button" data-export-snapshot>Export JSON snapshot</button><button type="button" data-import-snapshot>Import JSON snapshot</button><button type="button" data-reset-fixture>Reset synthetic fixture</button></div>',
+    '<div class="reliability-actions"><button class="primary" type="button" data-export-snapshot>Export JSON snapshot</button><button type="button" data-import-snapshot>Import Signal + Pull snapshot</button><button type="button" data-import-ledger>Preview Ledger snapshot</button><button type="button" data-reset-fixture>Reset synthetic fixture</button></div>',
     '<p class="reliability-note">Recovery rule: unreadable local state is preserved and blocks normal operation until the user exports the raw record, imports a known-good snapshot, or explicitly resets the fixture. The system must never silently replace corrupt durable state with a fresh empty/default state.</p>',
     loadError?'<div class="system-warning">'+esc(loadError)+'</div>':''
+  ].join('');
+}
+function renderLedgerImportPreview(){
+  const box=$('ledgerImportPreview');
+  if(!box)return;
+  if(!pendingLedgerImport){box.hidden=true;box.innerHTML='';return}
+  const r=pendingLedgerImport.report;
+  const warnings=(r.warnings||[]).slice(0,8);
+  box.hidden=false;
+  box.innerHTML=[
+    '<span class="kicker">LEDGER IMPORT PREVIEW</span>',
+    '<h2>Convert incumbent data without changing the source</h2>',
+    '<div class="import-stats">',
+      '<div><strong>'+esc(String(r.sourceItems))+'</strong><span>source items</span></div>',
+      '<div><strong>'+esc(String(r.convertedCommitments))+'</strong><span>commitments</span></div>',
+      '<div><strong>'+esc(String(r.excludedNotes))+'</strong><span>notes kept as provenance</span></div>',
+      '<div><strong>'+esc(String(r.manualReviewRequired))+'</strong><span>manual wake reviews</span></div>',
+      '<div><strong>'+esc(String(r.sourceActiveItems||0))+'</strong><span>source active items</span></div>',
+    '</div>',
+    warnings.length?'<div class="import-warnings"><strong>Conversion notes</strong><ul>'+warnings.map(w=>'<li>'+esc(w.message)+'</li>').join('')+'</ul></div>':'',
+    '<p>Applying this preview replaces only the current Signal + Pull tester state. The Ledger file you selected and the preserved V4 branch are not modified. The current Signal + Pull state is saved to a separate local pre-import backup key first.</p>',
+    '<div class="reliability-actions"><button class="primary" type="button" data-apply-ledger-import>Apply converted snapshot</button><button type="button" data-cancel-ledger-import>Cancel preview</button></div>'
   ].join('');
 }
 function renderRecovery(){
@@ -128,7 +152,7 @@ function renderRecovery(){
 function renderAll(){
   if(!state){renderRecovery();return}
   document.querySelectorAll('.nav button').forEach(b=>b.disabled=false);
-  renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();
+  renderSummary();renderSignals();renderFocus();renderHoldings($('holdingsSearch')?.value||'');renderReliability();renderLedgerImportPreview();
 }
 function openInbox(){const search=$('holdingsSearch');if(search)search.value='INBOX';renderHoldings('INBOX');showView('holdings')}
 function showView(name){
@@ -158,6 +182,53 @@ function exportSnapshot(){
 }
 function downloadCorruptBackup(){if(corruptRaw)downloadText('signal-pull-v1-corrupt-raw.txt',corruptRaw,'text/plain')}
 function openImport(){const input=$('snapshotImport');if(input){input.value='';input.click()}}
+function openLedgerImport(){
+  const input=$('ledgerImport');
+  if(input){input.value='';input.click()}
+}
+async function previewLedgerImport(file){
+  if(!file)return;
+  let source;
+  try{source=JSON.parse(await file.text())}
+  catch(error){pendingLedgerImport=null;toast('Ledger import rejected: file is not valid JSON.');renderLedgerImportPreview();return}
+  try{
+    pendingLedgerImport=LedgerImportV1.convertLedgerSnapshot(source,{convertedAt:ANCHOR.toISOString()});
+    renderLedgerImportPreview();
+    showView('reliability');
+    toast('Ledger snapshot converted for preview. Nothing has been applied yet.');
+  }catch(error){
+    pendingLedgerImport=null;
+    toast('Ledger import rejected: '+error.message);
+    renderLedgerImportPreview();
+  }
+}
+function cancelLedgerImport(){
+  pendingLedgerImport=null;
+  renderLedgerImportPreview();
+  toast('Ledger import preview cancelled.');
+}
+function applyLedgerImport(){
+  if(!pendingLedgerImport)return;
+  try{
+    if(state)localStorage.setItem(PRE_LEDGER_IMPORT_BACKUP_KEY,SignalStateIO.serializeSnapshot(state));
+  }catch(error){
+    toast('Could not create pre-import backup: '+error.message);
+    return;
+  }
+  let next;
+  try{next=SignalStateIO.normalizeState(pendingLedgerImport.state)}
+  catch(error){toast('Converted snapshot failed Signal + Pull validation: '+error.message);return}
+  next.localSave='saved';
+  state=next;
+  corruptRaw='';
+  loadError='';
+  pendingLedgerImport=null;
+  try{localStorage.setItem(STORAGE_KEY,SignalStateIO.serializeSnapshot(state))}
+  catch(error){state.localSave='memory only';loadError='Converted Ledger state is memory only: '+error.message}
+  renderAll();
+  showView('signals');
+  toast('Converted Ledger snapshot applied to Signal + Pull tester.');
+}
 async function importSnapshot(file){
   if(!file)return;
   const text=await file.text();
@@ -185,6 +256,9 @@ document.addEventListener('click',e=>{
   if(b.dataset.recoveryDownload!==undefined)return downloadCorruptBackup();
   if(b.dataset.exportSnapshot!==undefined)return exportSnapshot();
   if(b.dataset.importSnapshot!==undefined)return openImport();
+  if(b.dataset.importLedger!==undefined)return openLedgerImport();
+  if(b.dataset.applyLedgerImport!==undefined)return applyLedgerImport();
+  if(b.dataset.cancelLedgerImport!==undefined)return cancelLedgerImport();
   if(b.dataset.resetFixture!==undefined)return resetFixture();
   if(b.dataset.inboxView!==undefined)return openInbox();
   if(b.dataset.view)return showView(b.dataset.view);
@@ -197,6 +271,7 @@ document.addEventListener('click',e=>{
 });
 $('holdingsSearch').addEventListener('input',e=>{if(state)renderHoldings(e.target.value)});
 $('snapshotImport').addEventListener('change',e=>importSnapshot(e.target.files?.[0]));
+$('ledgerImport').addEventListener('change',e=>previewLedgerImport(e.target.files?.[0]));
 $('captureForm').addEventListener('submit',e=>{e.preventDefault();const title=$('captureTitleInput').value.trim();if(!title)return;const c=seedCommitment(uid('capture'),{title,scope:$('captureScopeInput').value.trim()||'Inbox',attentionState:'INBOX',nextAction:$('captureNextInput').value.trim(),createdAt:ANCHOR.toISOString(),updatedAt:ANCHOR.toISOString(),lastSeenAt:ANCHOR.toISOString(),materialChangedAt:ANCHOR.toISOString()});state.commitments.unshift(c);e.target.reset();persist(`Captured “${title}” to Inbox.`);showView('signals')});
 
 renderAll();showView('signals');

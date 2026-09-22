@@ -6,12 +6,14 @@ on:
       - 'experiments/attention-engine-v1/**'
       - 'experiments/signal-pull-v1/**'
       - 'experiments/ranking-v1/**'
+      - 'experiments/ledger-import-v1/**'
       - 'docs/LEDGER-ORGANIZATION-ROADMAP-2026-09-22.md'
   pull_request:
     paths:
       - 'experiments/attention-engine-v1/**'
       - 'experiments/signal-pull-v1/**'
       - 'experiments/ranking-v1/**'
+      - 'experiments/ledger-import-v1/**'
       - 'docs/LEDGER-ORGANIZATION-ROADMAP-2026-09-22.md'
 
 jobs:
@@ -37,6 +39,10 @@ jobs:
           node --check experiments/ranking-v1/ranking.js
           node --check experiments/ranking-v1/fixtures.js
           node --check experiments/ranking-v1/ranking.test.js
+          node --check experiments/ledger-import-v1/ledger-import.js
+          node --check experiments/ledger-import-v1/fixtures.js
+          node --check experiments/ledger-import-v1/ledger-import.test.js
+          node --check experiments/ledger-import-v1/ui-contract.test.js
       - name: Test attention mechanics
         run: node experiments/attention-engine-v1/attention-engine.test.js
       - name: Test snapshot IO
@@ -49,3 +55,7 @@ jobs:
         run: node experiments/signal-pull-v1/signal-contract.test.js
       - name: Test ranking experiment
         run: node experiments/ranking-v1/ranking.test.js
+      - name: Test Ledger conversion bridge
+        run: node experiments/ledger-import-v1/ledger-import.test.js
+      - name: Test Ledger import UI contract
+        run: node experiments/ledger-import-v1/ui-contract.test.js
