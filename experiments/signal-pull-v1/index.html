@@ -29,6 +29,7 @@
           <div><span class="kicker">SYSTEM ORIENTATION</span><h1 id="signalsTitle" tabindex="-1">What changed enough to matter?</h1></div>
           <p>Stable commitments stay quiet. This surface contains only changes, expirations, resumptions, or decisions that alter what you should know or do.</p>
         </div>
+        <section id="currentFocusStrip" class="focus-strip" hidden aria-label="Current focus"></section>
         <div class="desk-layout">
           <section aria-labelledby="materialSignalsHeading">
             <div class="section-head"><h2 id="materialSignalsHeading">Material signals</h2><span id="signalCount"></span></div>
@@ -40,7 +41,11 @@
             <section class="quiet-summary">
               <h3>Quiet holdings</h3>
               <p id="quietSummary"></p>
-              <button type="button" data-view="holdings">Inspect holdings</button>
+              <p id="inboxSummary"></p>
+              <div class="quiet-actions">
+                <button type="button" data-view="holdings">Inspect holdings</button>
+                <button type="button" data-inbox-view>Inspect Inbox</button>
+              </div>
             </section>
           </aside>
         </div>
@@ -101,6 +106,7 @@
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   </div>
   <script src="state-io.js"></script>
+  <script src="signal-policy.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
