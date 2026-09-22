@@ -18,6 +18,7 @@
         <button type="button" data-view="signals">Signals</button>
         <button type="button" data-view="focus">Focus</button>
         <button type="button" data-view="holdings">Holdings</button>
+        <button type="button" data-view="reliability">Reliability</button>
         <button class="capture-button" type="button" data-view="capture">Capture</button>
       </nav>
     </header>
@@ -60,6 +61,29 @@
         <div id="holdingsList" class="holdings-list"></div>
       </section>
 
+      <section id="reliabilityView" class="view" hidden aria-labelledby="reliabilityTitle">
+        <div class="view-head compact">
+          <div><span class="kicker">TRUST / RECOVERY</span><h1 id="reliabilityTitle" tabindex="-1">Reliability</h1></div>
+          <p>Local save, external backup, quiet-work integrity, export/import, and corruption recovery are separate states. This experiment does not imply cloud recovery when none exists.</p>
+        </div>
+        <div id="reliabilityContent" class="reliability-content"></div>
+        <input id="snapshotImport" type="file" accept="application/json,.json" hidden>
+      </section>
+
+      <section id="recoveryView" class="view" hidden aria-labelledby="recoveryTitle">
+        <div class="recovery-shell">
+          <span class="kicker">LOCAL DATA NEEDS RECOVERY</span>
+          <h1 id="recoveryTitle" tabindex="-1">Signal + Pull will not overwrite unreadable local state.</h1>
+          <p>The raw browser record is still present. Download it before resetting, or import a known-good Signal + Pull snapshot.</p>
+          <div id="recoveryError" class="system-warning"></div>
+          <div class="focus-actions">
+            <button class="primary" type="button" data-recovery-download>Download raw backup</button>
+            <button type="button" data-import-snapshot>Import known-good snapshot</button>
+            <button type="button" data-reset-fixture>Reset synthetic fixture</button>
+          </div>
+        </div>
+      </section>
+
       <section id="captureView" class="view" hidden aria-labelledby="captureTitle">
         <div class="view-head compact">
           <div><span class="kicker">LOW-FRICTION INTAKE</span><h1 id="captureTitle" tabindex="-1">Capture without committing</h1></div>
@@ -76,6 +100,7 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   </div>
+  <script src="state-io.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
