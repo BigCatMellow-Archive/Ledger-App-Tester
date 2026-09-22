@@ -147,10 +147,18 @@
     }
     report.convertedCommitments=commitments.length;
     const active=[...commitments].filter(c=>c.workState==='ACTIVE').sort((a,b)=>String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
-    if(active.length>1)report.warnings.push({kind:'multiple-active',message:`${active.length} source items were ACTIVE; the most recently touched one is selected as Focus while all remain active.`});
-    if(active.length>3)report.warnings.push({kind:'active-capacity',message:`${active.length} imported ACTIVE items exceed the current Signal + Pull soft capacity of 3.`});
+    report.sourceActiveItems=active.length;
+    if(active.length>1){
+      active.slice(1).forEach(c=>{
+        c.workState='OPEN';
+        c.attentionState='INBOX';
+        c.userPinned=false;
+        c.disposition='Imported as ACTIVE from Ledger; requires explicit triage before entering Focus.';
+      });
+      report.warnings.push({kind:'multiple-active',message:`${active.length} source items were ACTIVE; the most recently touched one is selected as Focus and ${active.length-1} additional active item(s) are placed in Inbox for explicit triage.`});
+    }
 
-    const supportingRecords={
+    const supportingRecords=
       projects:arr(source.projects).map(p=>({
         id:String(p.id||''),title:text(p.title),description:text(p.description),mode:String(p.mode||''),framing:p.framing&&typeof p.framing==='object'?p.framing:{},links:arr(p.links)
       })),
